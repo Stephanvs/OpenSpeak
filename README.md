@@ -4,7 +4,7 @@ TTS using local inference with a decoupled client/server architecture.
 
 ## Current focus
 - macOS menubar app as the first client.
-- shared TTS server that can run in the background, standalone CLI mode, or remote mode.
+- Shared Rust TTS server that can run in background, standalone CLI mode, or remote mode.
 
 ## Planning and contracts
 - macOS-first roadmap: `docs/roadmap/macos-first-monorepo-plan.md`

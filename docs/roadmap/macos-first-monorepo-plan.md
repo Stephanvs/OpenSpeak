@@ -4,7 +4,7 @@
 Build a native macOS menubar app for local, offline text-to-speech (TTS), while structuring the repository so Linux and Windows clients can be added later without re-architecture.
 
 ## Scope (Current)
-- In scope: explicit client/server architecture, backend service + standalone CLI, and macOS menubar frontend scaffold.
+- In scope: explicit client/server architecture, Rust backend service + standalone CLI, and macOS menubar frontend scaffold.
 - Out of scope: production model runtime and full installer/signing pipeline.
 
 ## Product Principles
@@ -21,7 +21,7 @@ Implement a long-running **TTS server process** and make every app (macOS now, W
 
 ### Components
 - `apps/macos-menubar/`: native SwiftUI menubar client
-- `services/tts-server/`: background TTS server and CLI entrypoint
+- `services/tts-server/`: Rust background TTS server and CLI entrypoint
 - `packages/contracts/`: API contract source of truth (OpenAPI)
 - `packages/sdk/`: future client SDKs per platform
 
@@ -32,36 +32,6 @@ Implement a long-running **TTS server process** and make every app (macOS now, W
 
 ---
 
-## Proposed Monorepo Layout
-
-```text
-/
-├─ apps/
-│  ├─ macos-menubar/
-│  ├─ windows/                # placeholder
-│  └─ linux/                  # placeholder
-├─ services/
-│  └─ tts-server/
-├─ packages/
-│  ├─ contracts/
-│  └─ sdk/
-├─ models/
-│  └─ manifests/
-├─ scripts/
-│  ├─ dev/
-│  ├─ ci/
-│  └─ release/
-└─ docs/
-   ├─ architecture/
-   ├─ contracts/
-   ├─ macos/
-   ├─ server/
-   ├─ roadmap/
-   └─ progress/
-```
-
----
-
 ## API & Runtime Strategy
 
 ## Contract v1 (MVP)
@@ -69,11 +39,6 @@ Implement a long-running **TTS server process** and make every app (macOS now, W
 - `GET /v1/models`
 - `POST /v1/synthesize`
 - `GET /v1/audio/{request_id}`
-
-Contract requirements:
-- Explicit `model_id` on synthesis.
-- Stream/download URL returned from job creation.
-- Stable error semantics for client UX mapping.
 
 ## Server runtime modes
 1. **Embedded local mode**: started in background by macOS app.
@@ -95,7 +60,7 @@ Contract requirements:
 
 ## Phase 1 — Client/Server baseline (in progress)
 - Define OpenAPI contract v1.
-- Scaffold backend service with contract endpoints.
+- Scaffold Rust backend service with contract endpoints.
 - Scaffold standalone backend CLI for `serve`, `health`, `models`, `synthesize`.
 - Scaffold macOS menubar app folder with API client stubs.
 

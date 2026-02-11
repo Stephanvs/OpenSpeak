@@ -4,7 +4,7 @@ Yapper is a monorepo for a decoupled TTS platform.
 
 ## Current delivery focus
 - First target platform: macOS menubar app.
-- Shared backend service architecture designed for Windows/Linux client reuse.
+- Shared Rust backend service architecture designed for Windows/Linux client reuse.
 
 ## Architectural pattern
 - Clients in `apps/*` (native UX only).
