@@ -6,7 +6,10 @@ use reqwest::Url;
 use crate::{api, model::SynthesizeRequest, service::AppState};
 
 #[derive(Parser)]
-#[command(name = "yapper-server", about = "Yapper TTS server + standalone client CLI")]
+#[command(
+    name = "yapper-server",
+    about = "Yapper TTS server + standalone client CLI"
+)]
 struct Cli {
     #[command(subcommand)]
     command: Commands,
@@ -30,7 +33,7 @@ enum Commands {
     },
     Synthesize {
         text: String,
-        #[arg(long, default_value = "piper-en-us-amy")]
+        #[arg(long, default_value = "openai-tts-1-hd-alloy")]
         model_id: String,
         #[arg(long, default_value = "output.wav")]
         output: String,
@@ -45,17 +48,26 @@ pub async fn run() -> Result<()> {
         Commands::Serve { host, port } => serve(&host, port).await,
         Commands::Health { base_url } => health(&base_url).await,
         Commands::Models { base_url } => models(&base_url).await,
-        Commands::Synthesize { text, model_id, output, base_url } => {
-            synthesize(&base_url, &text, &model_id, &output).await
-        }
+        Commands::Synthesize {
+            text,
+            model_id,
+            output,
+            base_url,
+        } => synthesize(&base_url, &text, &model_id, &output).await,
     }
 }
 
 async fn serve(host: &str, port: u16) -> Result<()> {
     let state = AppState::new();
+    let models_loaded = state.models.len();
     let app: Router = api::router(state);
     let listener = tokio::net::TcpListener::bind(format!("{host}:{port}")).await?;
-    println!("Yapper server listening on http://{host}:{port}");
+    println!("Yapper server listening on http://{host}:{port} ({models_loaded} models configured)");
+    if models_loaded == 0 {
+        println!(
+            "No API-backed models configured. Set OPENAI_API_KEY and/or ELEVENLABS_API_KEY (+ ELEVENLABS_VOICE_ID)."
+        );
+    }
     axum::serve(listener, app).await?;
     Ok(())
 }
