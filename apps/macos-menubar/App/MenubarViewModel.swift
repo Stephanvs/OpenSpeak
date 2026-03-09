@@ -1,4 +1,5 @@
 import Foundation
+import AVFoundation
 internal import Combine
 
 @MainActor
@@ -9,6 +10,7 @@ final class MenubarViewModel: ObservableObject {
     @Published var statusMessage: String = ""
 
     private let client = TTSClient()
+    private var player: AVAudioPlayer?
 
     func refreshModels() async {
         do {
@@ -31,7 +33,14 @@ final class MenubarViewModel: ObservableObject {
 
         do {
             let outputPath = try await client.synthesize(text: text, modelId: selectedModelId)
-            statusMessage = "Saved audio: \(outputPath.lastPathComponent)"
+            player?.stop()
+            player = try AVAudioPlayer(contentsOf: outputPath)
+            player?.prepareToPlay()
+            if player?.play() == true {
+                statusMessage = "Playing: \(outputPath.lastPathComponent)"
+            } else {
+                statusMessage = "Saved audio: \(outputPath.lastPathComponent)"
+            }
         } catch {
             statusMessage = "Synthesis failed: \(error.localizedDescription)"
         }

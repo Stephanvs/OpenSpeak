@@ -17,6 +17,7 @@
 
 /* Begin PBXFileReference section */
 		6E1EAE0A2F3E819A00EDC6D7 /* Yapper.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Yapper.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		6E1EAE272F3E821400EDC6D7 /* Yapper.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Yapper.entitlements; sourceTree = "<group>"; };
 		6E1EAE182F3E820E00EDC6D7 /* MenubarContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenubarContentView.swift; sourceTree = "<group>"; };
 		6E1EAE192F3E820E00EDC6D7 /* MenubarViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenubarViewModel.swift; sourceTree = "<group>"; };
 		6E1EAE1A2F3E820E00EDC6D7 /* YapperApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YapperApp.swift; sourceTree = "<group>"; };
@@ -39,6 +40,7 @@
 		6E1EAE012F3E819A00EDC6D7 = {
 			isa = PBXGroup;
 			children = (
+				6E1EAE272F3E821400EDC6D7 /* Yapper.entitlements */,
 				6E1EAE1B2F3E820E00EDC6D7 /* App */,
 				6E1EAE1C2F3E820E00EDC6D7 /* Assets.xcassets */,
 				6E1EAE1E2F3E820E00EDC6D7 /* Models */,
@@ -289,6 +291,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Yapper.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
@@ -321,6 +324,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Yapper.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
