@@ -1,5 +1,3 @@
-using Microsoft.Extensions.Configuration;
-
 namespace Yap.Providers;
 
 public sealed class TextToSpeechProviderResolver(IEnumerable<ITextToSpeechProvider> providers, IConfiguration config)
