@@ -1,6 +1,4 @@
-﻿using System.CommandLine;
-
-namespace Yap.Commands.Synthesize;
+﻿namespace Yap.Synthesize;
 
 public sealed class SynthesizeCommand : Command
 {

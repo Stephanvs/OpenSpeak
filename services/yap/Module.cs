@@ -1,9 +1,9 @@
 using Yap.Providers;
 using Yap.Providers.ElevenLabs;
 using Yap.Providers.GrokVoice;
-using yap.Serve;
-using yap.Speak;
-using yap.Synthesize;
+using Yap.Serve;
+using Yap.Speak;
+using Yap.Synthesize;
 
 namespace Yap;
 

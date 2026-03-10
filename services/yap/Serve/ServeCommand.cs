@@ -1,6 +1,4 @@
-﻿using System.CommandLine;
-
-namespace Yap.Commands.Serve;
+﻿namespace Yap.Serve;
 
 public sealed class ServeCommand : Command
 {

@@ -1,7 +1,6 @@
-﻿using System.CommandLine;
-using Yap.Providers;
+﻿using Yap.Providers;
 
-namespace Yap.Commands.Speak;
+namespace Yap.Speak;
 
 public sealed class SpeakCommand : Command
 {
