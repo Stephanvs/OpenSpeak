@@ -10,7 +10,7 @@ builder.Configuration.AddEnvironmentVariables();
 builder.Services.AddYap(builder.Configuration);
 
 var host = builder.Build();
-var rootCommand = new RootCommand("yap - text-to-speech CLI");
+var rootCommand = new RootCommand("yap - text-to-speech");
 
 var commands = host.Services.GetRequiredService<IEnumerable<Command>>();
 foreach (var command in commands)
