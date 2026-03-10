@@ -9,7 +9,7 @@ public sealed class SynthesizeCommand : Command
     };
 
     public SynthesizeCommand()
-        : base("synthesize", "Synthesize text into audio output")
+        : base("synthesize", "Generate audio file from text")
     {
         Add(TextArgument);
         SetAction(Execute);

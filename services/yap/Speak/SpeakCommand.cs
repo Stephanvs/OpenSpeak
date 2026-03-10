@@ -48,7 +48,7 @@ public sealed class SpeakCommand : Command
     };
 
     public SpeakCommand(TextToSpeechProviderResolver providerResolver)
-        : base("speak", "Speak text using the default voice")
+        : base("speak", "Convert text to speech and play immediately")
     {
         _providerResolver = providerResolver;
         Aliases.Add("say");
