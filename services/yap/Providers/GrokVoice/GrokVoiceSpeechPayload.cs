@@ -8,7 +8,7 @@ internal sealed class GrokVoiceSpeechPayload
     public required string Text { get; init; }
 
     [JsonPropertyName("voice_id")]
-    public required string VoiceId { get; init; }
+    public required GrokVoiceId VoiceId { get; init; }
 
     [JsonPropertyName("output_format")]
     public required GrokVoiceOutputFormat OutputFormat { get; init; }

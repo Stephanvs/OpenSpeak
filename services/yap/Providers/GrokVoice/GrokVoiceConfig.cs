@@ -8,19 +8,15 @@ public sealed class GrokVoiceConfig
 
     public string ApiBaseUrl { get; set; } = "https://api.x.ai";
 
-    public string DefaultVoiceId { get; set; } = string.Empty;
-
-    public string DefaultVoice { get; set; } = string.Empty;
+    public string DefaultVoiceId { get; set; } = "eve";
 
     public string DefaultModel { get; set; } = string.Empty;
 
-    public string DefaultOutputFormat { get; set; } = string.Empty;
+    public string DefaultOutputFormat { get; set; } = "mp3";
 
-    public string DefaultResponseFormat { get; set; } = string.Empty;
+    public int? DefaultSampleRate { get; set; } = 24000;
 
-    public int? DefaultSampleRate { get; set; }
-
-    public int? DefaultBitRate { get; set; }
+    public int? DefaultBitRate { get; set; } = 128000;
 
     public string? DefaultLanguage { get; set; }
 }

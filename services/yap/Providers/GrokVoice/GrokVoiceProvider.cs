@@ -9,9 +9,10 @@ public sealed class GrokVoiceProvider(
     IOptions<GrokVoiceConfig> config)
     : ITextToSpeechProvider
 {
-    private const string FallbackVoiceId = "Eve";
-    private const int FallbackSampleRate = 44100;
+    private const GrokVoiceId FallbackVoiceId = GrokVoiceId.Eve;
+    private const int FallbackSampleRate = 24000;
     private const int FallbackBitRate = 128000;
+    private static readonly string AllowedVoiceIds = string.Join(", ", Enum.GetNames<GrokVoiceId>()).ToLowerInvariant();
 
     private readonly GrokVoiceConfig _config = config.Value;
 
@@ -28,12 +29,7 @@ public sealed class GrokVoiceProvider(
             throw new InvalidOperationException($"Missing {GrokVoiceConfig.SectionName}:ApiKey configuration value.");
         }
 
-        var voiceId = FirstNonEmpty(request.Voice, _config.DefaultVoiceId, _config.DefaultVoice, FallbackVoiceId);
-        if (string.IsNullOrWhiteSpace(voiceId))
-        {
-            throw new InvalidOperationException(
-                $"No Grok voice configured. Set {GrokVoiceConfig.SectionName}:DefaultVoiceId or pass --voice.");
-        }
+        var voiceId = ResolveVoiceId(request.Voice, _config.DefaultVoiceId);
 
         var outputFormat = ResolveOutputFormat(request);
         var payload = new GrokVoiceSpeechPayload
@@ -64,7 +60,7 @@ public sealed class GrokVoiceProvider(
     private GrokVoiceOutputFormat ResolveOutputFormat(TtsSpeechRequest request)
     {
         var requestedOutput = request.Output;
-        var configuredDefaults = ParseOutputFormatToken(FirstNonEmpty(_config.DefaultOutputFormat, _config.DefaultResponseFormat));
+        var configuredDefaults = ParseOutputFormatToken(_config.DefaultOutputFormat);
 
         var codec = requestedOutput?.Codec
             ?? configuredDefaults?.Codec
@@ -104,6 +100,24 @@ public sealed class GrokVoiceProvider(
             SampleRate = sampleRate,
             BitRate = SupportsBitRate(codec) ? bitRate : null
         };
+    }
+
+    private static GrokVoiceId ResolveVoiceId(params string?[] values)
+    {
+        var rawValue = FirstNonEmpty(values);
+        if (string.IsNullOrWhiteSpace(rawValue))
+        {
+            return FallbackVoiceId;
+        }
+
+        var normalized = rawValue.Trim();
+        if (!int.TryParse(normalized, out _) && Enum.TryParse<GrokVoiceId>(normalized, true, out var voiceId))
+        {
+            return voiceId;
+        }
+
+        throw new InvalidOperationException(
+            $"Unsupported Grok voice '{rawValue}'. Allowed voices: {AllowedVoiceIds}.");
     }
 
     private static ParsedOutputFormat? ParseOutputFormatToken(string? rawValue)
