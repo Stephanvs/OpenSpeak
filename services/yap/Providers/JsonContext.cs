@@ -5,5 +5,6 @@ using Yap.Providers.GrokVoice;
 namespace Yap.Providers;
 
 [JsonSerializable(typeof(ElevenLabsSpeechPayload))]
+[JsonSerializable(typeof(GrokVoiceOutputFormat))]
 [JsonSerializable(typeof(GrokVoiceSpeechPayload))]
 internal sealed partial class JsonContext : JsonSerializerContext;

@@ -27,9 +27,10 @@ public sealed class SynthesizeCommand : Command
         Description = "Provider-specific model override"
     };
 
-    private Option<string?> FormatOption { get; } = new("--format", "-f")
+    private Option<SpeechCodec> CodecOption { get; } = new("--codec", "-c")
     {
-        Description = "Output audio format, for example mp3 or wav"
+        Description = "Output codec, such as mp3, wav, pcm, mulaw, or alaw",
+        DefaultValueFactory = (_) => SpeechCodec.Mp3
     };
 
     private Option<double?> SpeedOption { get; } = new("--speed", "-s")
@@ -37,14 +38,26 @@ public sealed class SynthesizeCommand : Command
         Description = "Speech speed override"
     };
 
+    private Option<int?> SampleRateOption { get; } = new("--sample-rate")
+    {
+        Description = "Output sample rate in Hz when the provider supports it",
+        DefaultValueFactory = (_) => 24000
+    };
+
+    private Option<int?> BitRateOption { get; } = new("--bit-rate")
+    {
+        Description = "Output bit rate in bits per second when the provider supports it",
+        DefaultValueFactory = (_) => 192000
+    };
+
     private Option<string?> LanguageOption { get; } = new("--language")
     {
         Description = "Language code when the provider supports it"
     };
 
-    private Option<string?> OutputOption { get; } = new("--output", "-o")
+    private Option<DirectoryInfo?> OutputOption { get; } = new("--output", "-o")
     {
-        Description = "Where to save the generated audio file"
+        Description = "Directory where to save the generated audio file"
     };
 
     public SynthesizeCommand(TextToSpeechProviderResolver providerResolver)
@@ -55,8 +68,10 @@ public sealed class SynthesizeCommand : Command
         Add(ProviderOption);
         Add(VoiceOption);
         Add(ModelOption);
-        Add(FormatOption);
+        Add(CodecOption);
         Add(SpeedOption);
+        Add(SampleRateOption);
+        Add(BitRateOption);
         Add(LanguageOption);
         Add(OutputOption);
         SetAction(ExecuteAsync);
@@ -68,7 +83,7 @@ public sealed class SynthesizeCommand : Command
 
         if (string.IsNullOrWhiteSpace(text))
         {
-            await Console.Error.WriteLineAsync("No text supplied for speak.");
+            await Console.Error.WriteLineAsync("No text supplied for synthesize.");
             return 1;
         }
 
@@ -76,12 +91,15 @@ public sealed class SynthesizeCommand : Command
         {
             var providerName = parseResult.GetValue(ProviderOption);
             var provider = _providerResolver.Resolve(providerName);
+            var codec = parseResult.GetValue(CodecOption);
+            var sampleRate = parseResult.GetValue(SampleRateOption);
+            var bitRate = parseResult.GetValue(BitRateOption);
             var request = new TtsSpeechRequest
             {
                 Text = text,
                 Voice = parseResult.GetValue(VoiceOption),
                 Model = parseResult.GetValue(ModelOption),
-                OutputFormat = parseResult.GetValue(FormatOption),
+                Output = CreateOutputSettings(codec, sampleRate, bitRate),
                 Speed = parseResult.GetValue(SpeedOption),
                 LanguageCode = parseResult.GetValue(LanguageOption)
             };
@@ -100,14 +118,30 @@ public sealed class SynthesizeCommand : Command
         }
     }
 
-    private static string ResolveOutputPath(string? configuredPath, string fileExtension)
+    private static string ResolveOutputPath(DirectoryInfo? configuredPath, string fileExtension)
     {
-        if (!string.IsNullOrWhiteSpace(configuredPath))
+        var fileName = $"yap-{DateTimeOffset.UtcNow:yyyyMMddHHmmss}-{Guid.NewGuid():N}{fileExtension}";
+
+        return Path.Combine(configuredPath is not null
+            ? configuredPath.FullName
+            : Environment.CurrentDirectory, fileName);
+    }
+
+    private static SpeechOutputSettings? CreateOutputSettings(
+        SpeechCodec? codec,
+        int? sampleRate,
+        int? bitRate)
+    {
+        if (codec is null && sampleRate is null && bitRate is null)
         {
-            return configuredPath;
+            return null;
         }
 
-        var fileName = $"yap-{DateTimeOffset.UtcNow:yyyyMMddHHmmss}-{Guid.NewGuid():N}{fileExtension}";
-        return Path.Combine(Environment.CurrentDirectory, fileName);
+        return new SpeechOutputSettings
+        {
+            Codec = codec,
+            SampleRate = sampleRate,
+            BitRate = bitRate,
+        };
     }
 }

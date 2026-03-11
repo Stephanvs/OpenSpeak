@@ -4,19 +4,16 @@ namespace Yap.Providers.GrokVoice;
 
 internal sealed class GrokVoiceSpeechPayload
 {
-    [JsonPropertyName("model")]
-    public required string Model { get; init; }
+    [JsonPropertyName("text")]
+    public required string Text { get; init; }
 
-    [JsonPropertyName("input")]
-    public required string Input { get; init; }
+    [JsonPropertyName("voice_id")]
+    public required string VoiceId { get; init; }
 
-    [JsonPropertyName("voice")]
-    public required string Voice { get; init; }
+    [JsonPropertyName("output_format")]
+    public required GrokVoiceOutputFormat OutputFormat { get; init; }
 
-    [JsonPropertyName("response_format")]
-    public required string ResponseFormat { get; init; }
-
-    [JsonPropertyName("speed")]
+    [JsonPropertyName("language")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public double? Speed { get; init; }
+    public string? Language { get; init; }
 }

@@ -8,7 +8,7 @@ public sealed record TtsSpeechRequest
 
     public string? Model { get; init; }
 
-    public string? OutputFormat { get; init; }
+    public SpeechOutputSettings? Output { get; init; }
 
     public double? Speed { get; init; }
 
