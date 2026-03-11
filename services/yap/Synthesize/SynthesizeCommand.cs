@@ -27,10 +27,9 @@ public sealed class SynthesizeCommand : Command
         Description = "Provider-specific model override"
     };
 
-    private Option<SpeechCodec> CodecOption { get; } = new("--codec", "-c")
+    private Option<SpeechCodec?> CodecOption { get; } = new("--codec", "-c")
     {
-        Description = "Output codec, such as mp3, wav, pcm, mulaw, or alaw",
-        DefaultValueFactory = (_) => SpeechCodec.Mp3
+        Description = "Output codec, such as mp3, wav, pcm, mulaw, or alaw"
     };
 
     private Option<double?> SpeedOption { get; } = new("--speed", "-s")
@@ -40,14 +39,12 @@ public sealed class SynthesizeCommand : Command
 
     private Option<int?> SampleRateOption { get; } = new("--sample-rate")
     {
-        Description = "Output sample rate in Hz when the provider supports it",
-        DefaultValueFactory = (_) => 24000
+        Description = "Output sample rate in Hz when the provider supports it"
     };
 
     private Option<int?> BitRateOption { get; } = new("--bit-rate")
     {
-        Description = "Output bit rate in bits per second when the provider supports it",
-        DefaultValueFactory = (_) => 192000
+        Description = "Output bit rate in bits per second when the provider supports it"
     };
 
     private Option<string?> LanguageOption { get; } = new("--language")
