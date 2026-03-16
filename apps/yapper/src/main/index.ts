@@ -236,7 +236,7 @@ async function synthesizeText(rawText: string): Promise<string> {
 }
 
 app.whenReady().then(() => {
-  electronApp.setAppUserModelId('io.hayman.yapper')
+  electronApp.setAppUserModelId('io.hayman.Yapper')
 
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)
