@@ -31,16 +31,18 @@ npm install
 npm run dev
 ```
 
-## Build
+## Package and distribute
 
 ```bash
-npm run build:mac
+ npm run package
+ npm run make
 ```
 
-You can also use `npm run build:win` or `npm run build:linux` from a matching environment.
+Use `npm run build:mac`, `npm run build:win`, or `npm run build:linux` from a matching environment when you want platform-specific distributables.
 
 ## Notes
 
 - Generated audio is written to your system temp directory under `yapper-audio`.
 - In development, the app can fall back to `dotnet run --project ../../services/yap` if the sidecar binary is missing.
+- Packaging and installers now run through Electron Forge with the Vite plugin.
 - The migration plan for moving from Tauri to Electron lives in `MIGRATION_PLAN.md`.

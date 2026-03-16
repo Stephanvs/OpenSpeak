@@ -13,10 +13,14 @@ import {
   shell,
   Tray
 } from 'electron'
-import { electronApp, optimizer, is } from '@electron-toolkit/utils'
-import icon from '../../resources/icon.png?asset'
+import electronSquirrelStartup from 'electron-squirrel-startup'
+import { electronApp, optimizer } from '@electron-toolkit/utils'
 
 const execFileAsync = promisify(execFile)
+
+if (electronSquirrelStartup) {
+  app.quit()
+}
 
 const GLOBAL_SHORTCUT = 'CommandOrControl+Shift+Y'
 const MAIN_WINDOW_WIDTH = 560
@@ -30,6 +34,10 @@ let isQuitting = false
 
 function getExecutableName(baseName: string): string {
   return process.platform === 'win32' ? `${baseName}.exe` : baseName
+}
+
+function getIconPath(): string {
+  return join(app.getAppPath(), 'resources', 'icon.png')
 }
 
 async function pathExists(filePath: string): Promise<boolean> {
@@ -56,10 +64,10 @@ function createMainWindow(): BrowserWindow {
     alwaysOnTop: true,
     autoHideMenuBar: true,
     backgroundColor: '#e8f0f7',
-    ...(process.platform === 'linux' ? { icon } : {}),
+    ...(process.platform === 'linux' ? { icon: getIconPath() } : {}),
     ...(process.platform === 'darwin' ? { titleBarStyle: 'hiddenInset' as const } : {}),
     webPreferences: {
-      preload: join(__dirname, '../preload/index.js'),
+      preload: join(__dirname, 'preload.js'),
       sandbox: false
     }
   })
@@ -82,10 +90,10 @@ function createMainWindow(): BrowserWindow {
     return { action: 'deny' }
   })
 
-  if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
-    void mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL'])
+  if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
+    void mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL)
   } else {
-    void mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
+    void mainWindow.loadFile(join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`))
   }
 
   return mainWindow
@@ -118,7 +126,7 @@ function createTray(): void {
     return
   }
 
-  const trayIcon = nativeImage.createFromPath(icon)
+  const trayIcon = nativeImage.createFromPath(getIconPath())
   const menu = Menu.buildFromTemplate([
     {
       label: 'Toggle UI',
