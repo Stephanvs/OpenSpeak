@@ -66,17 +66,15 @@
 
 <main class="shell">
   <section class="panel">
-    <div class="titlebar">
-      <div class="titlebar-drag" data-tauri-drag-region>
-        <span class="titlebar-dot" data-tauri-drag-region aria-hidden="true"></span>
-        <span data-tauri-drag-region>Yapper launcher</span>
-      </div>
-      <button class="window-action" type="button" onclick={hideLauncher}>Hide</button>
-    </div>
-
     <div class="content">
-      <p class="eyebrow">Global text-to-speech launcher</p>
-      <h1>Yapper</h1>
+      <div class="content-header">
+        <div class="content-copy">
+          <p class="eyebrow">Global text-to-speech launcher</p>
+          <h1>Yapper</h1>
+        </div>
+        <button class="window-action" type="button" onclick={hideLauncher}>Hide</button>
+      </div>
+
       <p class="hint">Open or hide this popup with <kbd>{HOTKEY}</kbd>.</p>
 
       <label for="tts-input">Text to convert</label>
@@ -105,81 +103,69 @@
 </main>
 
 <style>
+  :global(html) {
+    height: 100%;
+  }
+
   :global(body) {
     margin: 0;
-    min-height: 100vh;
+    height: 100%;
+    min-height: 100%;
     background:
-      radial-gradient(circle at 15% 15%, rgba(216, 183, 255, 0.3) 0, rgba(216, 183, 255, 0) 45%),
-      radial-gradient(circle at 85% 20%, rgba(121, 204, 255, 0.32) 0, rgba(121, 204, 255, 0) 40%),
+      radial-gradient(circle at 15% 15%, rgba(216, 183, 255, 0.26) 0, rgba(216, 183, 255, 0) 45%),
+      radial-gradient(circle at 85% 20%, rgba(121, 204, 255, 0.28) 0, rgba(121, 204, 255, 0) 40%),
       linear-gradient(160deg, #f6f2ea 0%, #e8f0f7 55%, #f2ece1 100%);
     font-family: "Space Grotesk", "Avenir Next", "Segoe UI", sans-serif;
     color: #1f2732;
   }
 
   .shell {
+    width: 100vw;
     height: 100vh;
     display: grid;
-    place-items: center;
-    padding: 1rem;
     box-sizing: border-box;
     overflow: hidden;
   }
 
   .panel {
-    width: min(100%, 520px);
-    max-height: calc(100vh - 2rem);
-    border-radius: 22px;
-    background: rgba(250, 252, 255, 0.9);
-    border: 1px solid rgba(44, 57, 75, 0.16);
-    box-shadow:
-      0 18px 36px rgba(48, 66, 94, 0.22),
-      0 2px 12px rgba(48, 66, 94, 0.12);
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+    background:
+      radial-gradient(circle at 15% 15%, rgba(216, 183, 255, 0.26) 0, rgba(216, 183, 255, 0) 45%),
+      radial-gradient(circle at 85% 20%, rgba(121, 204, 255, 0.28) 0, rgba(121, 204, 255, 0) 40%),
+      linear-gradient(160deg, rgba(246, 242, 234, 0.96) 0%, rgba(232, 240, 247, 0.96) 55%, rgba(242, 236, 225, 0.96) 100%);
+    box-shadow: inset 0 0 0 1px rgba(44, 57, 75, 0.14);
     overflow: hidden;
     backdrop-filter: blur(6px);
     display: grid;
-    grid-template-rows: auto minmax(0, 1fr);
     animation: panel-enter 220ms ease-out;
   }
 
-  .titlebar {
+  .content {
+    display: grid;
+    gap: 0.9rem;
+    padding: 1.2rem;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .content-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 0.75rem;
-    padding: 0.85rem 1rem 0.75rem;
-    border-bottom: 1px solid rgba(44, 57, 75, 0.12);
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.58), rgba(255, 255, 255, 0.2));
+    gap: 1rem;
   }
 
-  .titlebar-drag {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
+  .content-copy {
     min-width: 0;
-    flex: 1;
-    font-size: 0.76rem;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: #4a5d78;
-    user-select: none;
-    cursor: grab;
-  }
-
-  .titlebar-drag:active {
-    cursor: grabbing;
-  }
-
-  .titlebar-dot {
-    width: 0.7rem;
-    height: 0.7rem;
-    border-radius: 999px;
-    background: linear-gradient(135deg, #315991 0%, #79ccff 100%);
-    box-shadow: 0 0 0 4px rgba(80, 124, 184, 0.12);
-    flex: 0 0 auto;
+    display: grid;
+    gap: 0.3rem;
   }
 
   .window-action {
+    flex: 0 0 auto;
     padding: 0.34rem 0.78rem;
     border-radius: 999px;
     border: 1px solid rgba(53, 73, 99, 0.22);
@@ -188,15 +174,6 @@
     font-size: 0.72rem;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-  }
-
-  .content {
-    display: grid;
-    gap: 0.8rem;
-    padding: 1.05rem 1.2rem 1.2rem;
-    min-height: 0;
-    overflow-y: auto;
-    overscroll-behavior: contain;
   }
 
   .eyebrow {
@@ -307,21 +284,16 @@
   }
 
   @media (max-width: 640px) {
-    .shell {
-      padding: 0.75rem;
-    }
-
     .panel {
-      border-radius: 16px;
-      max-height: calc(100vh - 1.5rem);
-    }
-
-    .titlebar {
-      padding: 0.75rem 0.85rem 0.7rem;
+      box-shadow: inset 0 0 0 1px rgba(44, 57, 75, 0.12);
     }
 
     .content {
-      padding: 0.95rem 1rem 1rem;
+      padding: 1rem;
+    }
+
+    .content-header {
+      align-items: flex-start;
     }
 
     textarea {

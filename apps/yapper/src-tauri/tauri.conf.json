@@ -10,20 +10,7 @@
     "frontendDist": "../build"
   },
   "app": {
-    "windows": [
-      {
-        "label": "main",
-        "title": "Yapper",
-        "width": 560,
-        "height": 420,
-        "visible": false,
-        "decorations": false,
-        "resizable": false,
-        "alwaysOnTop": true,
-        "center": true,
-        "skipTaskbar": true
-      }
-    ],
+    "windows": [],
     "security": {
       "csp": null
     }
