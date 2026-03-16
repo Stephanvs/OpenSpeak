@@ -1,5 +1,8 @@
 import type { ForgeConfig } from '@electron-forge/shared-types'
 
+const isDraftRelease = process.env.YAPPER_RELEASE_DRAFT !== 'false'
+const isPrereleaseRelease = process.env.YAPPER_RELEASE_PRERELEASE === 'true'
+
 const config: ForgeConfig = {
   packagerConfig: {
     appBundleId: 'io.hayman.Yapper',
@@ -48,6 +51,21 @@ const config: ForgeConfig = {
       name: '@electron-forge/maker-rpm',
       platforms: ['linux'],
       config: {}
+    }
+  ],
+  publishers: [
+    {
+      name: '@electron-forge/publisher-github',
+      config: {
+        draft: isDraftRelease,
+        generateReleaseNotes: true,
+        prerelease: isPrereleaseRelease,
+        repository: {
+          owner: 'stephanvs',
+          name: 'yapper'
+        },
+        tagPrefix: 'v'
+      }
     }
   ],
   plugins: [

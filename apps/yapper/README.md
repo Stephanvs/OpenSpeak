@@ -40,6 +40,12 @@ npm run dev
 
 Use `npm run build:mac`, `npm run build:win`, or `npm run build:linux` from a matching environment when you want platform-specific distributables.
 
+## Releases
+
+- GitHub Actions builds release artifacts from `.github/workflows/yapper-release.yml`.
+- Push a tag that matches the app version, like `v1.0.0`, to publish a release.
+- Manual runs should target an existing `vX.Y.Z` tag that matches `apps/yapper/package.json`.
+
 ## Notes
 
 - Generated audio is written to your system temp directory under `yapper-audio`.
