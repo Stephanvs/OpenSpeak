@@ -7,17 +7,18 @@ Tauri + SvelteKit desktop launcher for text-to-speech.
 - Registers a global shortcut: `Cmd/Ctrl + Shift + Y`
 - Shows a small popup window with a textarea
 - Adds a macOS menubar icon with a native menu (`Toggle UI`, `Quit`)
-- Executes the published `yap` native sidecar binary to generate audio files
+- Bundles `services/yap` as a native Tauri sidecar to generate audio files
 
 ## Requirements
 
 - Bun
 - Rust toolchain
+- .NET SDK 10
 
 ## Sidecar setup
 
-Install the published `yap` native binary and make sure it is available on your `PATH`.
-If needed, point the app to a custom location with `YAP_BINARY_PATH=/absolute/path/to/yap`.
+No manual install is needed.
+When Tauri builds or runs the desktop app, `src-tauri/build.rs` publishes `services/yap` for the active target and places the generated sidecar in `apps/yapper/src-tauri/binaries/`.
 
 ## Run locally
 
@@ -29,4 +30,4 @@ bun run tauri dev
 ## Notes
 
 - Generated audio is written to your system temp directory under `yapper-audio`.
-- The app invokes the `yap` native binary directly, so it has no runtime dependency on `dotnet`.
+- The packaged app invokes the bundled `yap` sidecar, so end users do not need `dotnet` installed.

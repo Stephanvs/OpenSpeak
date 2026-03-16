@@ -1,4 +1,4 @@
-use std::{fs, process::Command};
+use std::fs;
 
 use tauri::{
     menu::{MenuBuilder, MenuEvent, MenuItemBuilder},
@@ -6,6 +6,7 @@ use tauri::{
     AppHandle, Manager,
 };
 use tauri_plugin_global_shortcut::{Builder as GlobalShortcutBuilder, ShortcutState};
+use tauri_plugin_shell::ShellExt;
 
 const GLOBAL_SHORTCUT: &str = "CommandOrControl+Shift+Y";
 const TRAY_ID: &str = "main-tray";
@@ -13,7 +14,7 @@ const TRAY_TOGGLE_UI_ID: &str = "toggle-ui";
 const TRAY_QUIT_ID: &str = "quit";
 
 #[tauri::command]
-async fn synthesize_text(text: String) -> Result<String, String> {
+async fn synthesize_text(app: AppHandle, text: String) -> Result<String, String> {
     let text = text.trim().to_string();
 
     if text.is_empty() {
@@ -24,29 +25,19 @@ async fn synthesize_text(text: String) -> Result<String, String> {
     fs::create_dir_all(&output_dir)
         .map_err(|error| format!("Failed to create output directory: {error}"))?;
     let output_dir_arg = output_dir.to_string_lossy().to_string();
-    let yap_binary = std::env::var("YAP_BINARY_PATH").unwrap_or_else(|_| "yap".to_string());
-    let yap_binary_for_error = yap_binary.clone();
-
-    let command_output = tauri::async_runtime::spawn_blocking(move || {
-        Command::new(&yap_binary)
-            .arg("synthesize")
-            .arg(text)
-            .arg("--output")
-            .arg(output_dir_arg)
-            .output()
-    })
-    .await
-    .map_err(|error| format!("Failed to wait for yap process: {error}"))?
-    .map_err(|error| {
-        if error.kind() == std::io::ErrorKind::NotFound {
-            format!(
-                "Could not find `{}`. Install the published yap binary and add it to PATH, or set YAP_BINARY_PATH.",
-                yap_binary_for_error
-            )
-        } else {
-            format!("Failed to execute yap binary: {error}")
-        }
-    })?;
+    let command_output = app
+        .shell()
+        .sidecar("yap")
+        .map_err(|error| format!("Failed to prepare bundled `yap` sidecar: {error}"))?
+        .args(vec![
+            "synthesize".to_string(),
+            text,
+            "--output".to_string(),
+            output_dir_arg,
+        ])
+        .output()
+        .await
+        .map_err(|error| format!("Failed to execute bundled `yap` sidecar: {error}"))?;
 
     if !command_output.status.success() {
         let stderr = String::from_utf8_lossy(&command_output.stderr);
@@ -128,6 +119,7 @@ fn create_tray_icon(app: &AppHandle) -> tauri::Result<()> {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_opener::init())
         .setup(|app| {
             hide_main_window(&app.handle());
