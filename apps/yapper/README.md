@@ -15,30 +15,30 @@ This app was scaffolded from the `@quick-start/electron` starter using the `svel
 
 ## Requirements
 
-- Node.js + npm
+- Bun
 - .NET SDK 10
 
 ## Sidecar setup
 
-`npm run sidecar:build` publishes `services/yap` for the current platform and copies the native binary to `resources/yap/` for Electron packaging.
+`bun run sidecar:build` publishes `services/yap` for the current platform and copies the native binary to `resources/yap/` for Electron packaging.
 
-`npm run dev` runs that sidecar build automatically before starting Electron.
+`bun run dev` runs that sidecar build automatically before starting Electron.
 
 ## Run locally
 
 ```bash
-npm install
-npm run dev
+bun install
+bun run dev
 ```
 
 ## Package and distribute
 
 ```bash
- npm run package
- npm run make
+bun run package
+bun run make
 ```
 
-Use `npm run build:mac`, `npm run build:win`, or `npm run build:linux` from a matching environment when you want platform-specific distributables.
+Use `bun run build:mac`, `bun run build:win`, or `bun run build:linux` from a matching environment when you want platform-specific distributables.
 
 ## Releases
 
