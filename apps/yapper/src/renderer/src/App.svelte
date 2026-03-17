@@ -8,7 +8,21 @@
     synthesizeText: (text: string) => Promise<string>;
   };
 
+  type NavItem = {
+    label: string;
+    icon: string;
+    active?: boolean;
+  };
+
   const api = window.api as YapperApi;
+
+  const navItems: NavItem[] = [
+    { label: "General", icon: "G", active: true },
+    { label: "Voices", icon: "V" },
+    { label: "History", icon: "H" },
+    { label: "Advanced", icon: "A" },
+    { label: "About", icon: "i" },
+  ];
 
   let text = "";
   let isSynthesizing = false;
@@ -69,40 +83,113 @@
 
 <svelte:window on:keydown={handleWindowKeydown} />
 
-<main class="shell">
-  <section class="panel">
-    <div class="content">
-      <div class="content-header">
-        <div class="content-copy">
-          <p class="eyebrow">Global text-to-speech launcher</p>
-          <h1>Yapper</h1>
-        </div>
-        <button class="window-action" type="button" on:click={hideLauncher}>Hide</button>
+<main class="app-shell">
+  <aside class="sidebar">
+    <div class="brand-block">
+      <div class="logo-placeholder" aria-hidden="true">Y</div>
+      <div class="brand-copy">
+        <p class="brand-kicker">Logo placeholder</p>
+        <h1>Yapper</h1>
       </div>
+    </div>
 
-      <p class="hint">Open or hide this popup with <kbd>{HOTKEY}</kbd>.</p>
-
-      <label for="tts-input">Text to convert</label>
-      <textarea
-        id="tts-input"
-        bind:value={text}
-        rows="8"
-        placeholder="Paste or type text you want converted to speech..."
-      ></textarea>
-
-      <div class="actions">
-        <button class="primary" on:click={synthesizeAudio} disabled={!canSynthesize}>
-          {isSynthesizing ? "Generating audio..." : "Generate audio file"}
+    <nav class="nav-list" aria-label="Settings sections">
+      {#each navItems as item}
+        <button class:active={item.active} class="nav-item" type="button">
+          <span class="nav-icon" aria-hidden="true">{item.icon}</span>
+          <span>{item.label}</span>
         </button>
-        {#if outputPath}
-          <button class="secondary" on:click={revealOutput}>Reveal output</button>
-        {/if}
-      </div>
+      {/each}
+    </nav>
 
-      <p class="status" class:success={statusTone === "success"} class:error={statusTone === "error"}>
-        {statusMessage}
-      </p>
-      <p class="shortcut-note">Use <kbd>{SUBMIT_HOTKEY}</kbd> to generate and <kbd>Esc</kbd> to hide.</p>
+    <div class="sidebar-footer">
+      <div>
+        <p class="footer-label">Engine</p>
+        <p class="footer-value">Yapper TTS</p>
+      </div>
+      <span class="footer-chip">Desktop</span>
+    </div>
+  </aside>
+
+  <section class="content-pane">
+    <div class="content-scroll">
+      <section class="settings-group">
+        <p class="group-label">General</p>
+        <div class="group-card">
+          <div class="setting-row">
+            <div>
+              <h2>Launcher Shortcut</h2>
+              <p>Bring the window forward from anywhere.</p>
+            </div>
+            <div class="row-actions">
+              <span class="keycap">{HOTKEY}</span>
+            </div>
+          </div>
+
+          <div class="setting-row">
+            <div>
+              <h2>Generate Shortcut</h2>
+              <p>Convert the current draft without leaving the keyboard.</p>
+            </div>
+            <div class="row-actions">
+              <span class="keycap">{SUBMIT_HOTKEY}</span>
+            </div>
+          </div>
+
+          <div class="setting-row">
+            <div>
+              <h2>Window</h2>
+              <p>Close the launcher quickly when you are done.</p>
+            </div>
+            <div class="row-actions">
+              <button class="ghost-button" type="button" on:click={hideLauncher}>Hide</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="settings-group">
+        <p class="group-label">Speech</p>
+        <div class="group-card compose-card">
+          <div class="setting-row textarea-row">
+            <div class="textarea-copy">
+              <h2>Text to Convert</h2>
+              <p>Paste or type the script you want to render as audio.</p>
+            </div>
+
+            <label class="textarea-wrap" for="tts-input">
+              <textarea
+                id="tts-input"
+                bind:value={text}
+                rows="8"
+                placeholder="Paste or type text you want converted to speech..."
+              ></textarea>
+            </label>
+          </div>
+
+          <div class="setting-row output-row">
+            <div>
+              <h2>Output</h2>
+              <p>{outputPath ? outputPath : "Generated audio files appear here after synthesis."}</p>
+            </div>
+            <div class="row-actions action-cluster">
+              <button class="primary-button" on:click={synthesizeAudio} disabled={!canSynthesize}>
+                {isSynthesizing ? "Generating..." : "Generate audio"}
+              </button>
+              <button class="ghost-button" on:click={revealOutput} disabled={!outputPath}>
+                Reveal output
+              </button>
+            </div>
+          </div>
+
+          <div class="status-row">
+            <p class="status" class:success={statusTone === "success"} class:error={statusTone === "error"}>
+              {statusMessage}
+            </p>
+            <p class="shortcut-note">Press <kbd>{SUBMIT_HOTKEY}</kbd> to generate and <kbd>Esc</kbd> to hide.</p>
+          </div>
+        </div>
+      </section>
     </div>
   </section>
 </main>
@@ -113,208 +200,390 @@
   }
 
   :global(body) {
-    margin: 0;
-    height: 100%;
     min-height: 100%;
-    background:
-      radial-gradient(circle at 15% 15%, rgba(216, 183, 255, 0.26) 0, rgba(216, 183, 255, 0) 45%),
-      radial-gradient(circle at 85% 20%, rgba(121, 204, 255, 0.28) 0, rgba(121, 204, 255, 0) 40%),
-      linear-gradient(160deg, #f6f2ea 0%, #e8f0f7 55%, #f2ece1 100%);
-    font-family: "Space Grotesk", "Avenir Next", "Segoe UI", sans-serif;
-    color: #1f2732;
+    background: #221f1c;
+    color: #f8f4ef;
+    font-family: "Trebuchet MS", "Segoe UI", sans-serif;
   }
 
-  .shell {
+  :global(button),
+  :global(textarea) {
+    font: inherit;
+  }
+
+  .app-shell {
+    --bg: #2a2521;
+    --panel: #322d28;
+    --panel-soft: #3a342f;
+    --panel-strong: #201c19;
+    --line: rgba(255, 255, 255, 0.08);
+    --line-strong: rgba(255, 255, 255, 0.14);
+    --text: #f7f2ea;
+    --muted: #b6aba2;
+    --soft: #d9cfc5;
+    --accent: #d37aa4;
+    --accent-strong: #f08ab7;
+    --accent-soft: rgba(211, 122, 164, 0.18);
+    display: grid;
+    grid-template-columns: 240px minmax(0, 1fr);
     width: 100vw;
     height: 100vh;
-    display: grid;
-    box-sizing: border-box;
-    overflow: hidden;
-  }
-
-  .panel {
-    width: 100%;
-    height: 100%;
-    border-radius: 0;
     background:
-      radial-gradient(circle at 15% 15%, rgba(216, 183, 255, 0.26) 0, rgba(216, 183, 255, 0) 45%),
-      radial-gradient(circle at 85% 20%, rgba(121, 204, 255, 0.28) 0, rgba(121, 204, 255, 0) 40%),
-      linear-gradient(160deg, rgba(246, 242, 234, 0.96) 0%, rgba(232, 240, 247, 0.96) 55%, rgba(242, 236, 225, 0.96) 100%);
-    box-shadow: inset 0 0 0 1px rgba(44, 57, 75, 0.14);
+      radial-gradient(circle at top left, rgba(255, 190, 214, 0.06), transparent 30%),
+      linear-gradient(180deg, #2d2824 0%, #28231f 100%);
     overflow: hidden;
-    backdrop-filter: blur(6px);
-    display: grid;
-    animation: panel-enter 220ms ease-out;
   }
 
-  .content {
+  .sidebar {
     display: grid;
-    gap: 0.9rem;
-    padding: 1.2rem;
-    min-height: 0;
-    overflow-y: auto;
-    overscroll-behavior: contain;
+    grid-template-rows: auto 1fr auto;
+    gap: 1.5rem;
+    padding: 1.25rem 0.75rem 1rem;
+    background: rgba(47, 41, 36, 0.82);
+    border-right: 1px solid var(--line);
   }
 
-  .content-header {
+  .brand-block {
+    display: grid;
+    gap: 0.85rem;
+    padding: 0.4rem 0.5rem 1rem;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .logo-placeholder {
+    display: grid;
+    place-items: center;
+    width: 88px;
+    height: 88px;
+    border-radius: 24px;
+    background:
+      radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.18), transparent 40%),
+      linear-gradient(145deg, #e48ab2 0%, #b15b82 100%);
+    color: white;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 2.75rem;
+    font-weight: 700;
+    box-shadow: 0 18px 30px rgba(0, 0, 0, 0.24);
+  }
+
+  .brand-copy {
+    display: grid;
+    gap: 0.2rem;
+  }
+
+  .brand-kicker,
+  .footer-label,
+  .group-label {
+    margin: 0;
+    color: #a89a8e;
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  h1,
+  h2 {
+    margin: 0;
+  }
+
+  h1 {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+
+  .nav-list {
+    display: grid;
+    align-content: start;
+    gap: 0.45rem;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    width: 100%;
+    padding: 0.85rem 0.9rem;
+    border: 0;
+    border-radius: 16px;
+    background: transparent;
+    color: var(--soft);
+    text-align: left;
+    cursor: default;
+    transition: background-color 150ms ease, color 150ms ease, transform 150ms ease;
+  }
+
+  .nav-item.active {
+    background: linear-gradient(180deg, #cd7aa4 0%, #ba6a92 100%);
+    color: white;
+    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.18);
+  }
+
+  .nav-icon {
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    font-size: 0.9rem;
+    font-weight: 700;
+  }
+
+  .nav-item.active .nav-icon {
+    border-color: rgba(255, 255, 255, 0.34);
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .sidebar-footer {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
+    padding: 1rem 0.6rem 0;
+    border-top: 1px solid var(--line);
   }
 
-  .content-copy {
-    min-width: 0;
-    display: grid;
-    gap: 0.3rem;
-  }
-
-  .window-action {
-    flex: 0 0 auto;
-    padding: 0.34rem 0.78rem;
-    border-radius: 999px;
-    border: 1px solid rgba(53, 73, 99, 0.22);
-    background: rgba(247, 249, 253, 0.92);
-    color: #2f3b4c;
-    font-size: 0.72rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-  }
-
-  .eyebrow {
-    margin: 0;
-    font-size: 0.78rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: #4a5d78;
-  }
-
-  h1 {
-    margin: 0;
-    font-size: 1.65rem;
-    line-height: 1.15;
-    font-family: "Sora", "Space Grotesk", sans-serif;
-  }
-
-  .hint,
-  .shortcut-note,
-  .status {
-    margin: 0;
-    font-size: 0.86rem;
-    line-height: 1.4;
-    color: #4a5d78;
-  }
-
-  label {
-    font-size: 0.84rem;
+  .footer-value {
+    margin: 0.15rem 0 0;
+    color: var(--text);
     font-weight: 600;
-    color: #2f3b4c;
+  }
+
+  .footer-chip {
+    padding: 0.3rem 0.65rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--line);
+    color: var(--muted);
+    font-size: 0.78rem;
+  }
+
+  .content-pane {
+    min-width: 0;
+    min-height: 0;
+    background: linear-gradient(180deg, rgba(47, 41, 36, 0.78) 0%, rgba(43, 37, 33, 0.94) 100%);
+  }
+
+  .content-scroll {
+    height: 100%;
+    overflow: auto;
+    padding: 1.4rem 1.45rem 1.6rem;
+    display: grid;
+    align-content: start;
+    gap: 1.8rem;
+  }
+
+  .settings-group {
+    display: grid;
+    gap: 0.8rem;
+  }
+
+  .group-card {
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    background: linear-gradient(180deg, rgba(57, 50, 45, 0.82) 0%, rgba(45, 39, 35, 0.92) 100%);
+    overflow: hidden;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  }
+
+  .setting-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 1rem;
+    align-items: center;
+    padding: 1.1rem 1.3rem;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .setting-row:last-child {
+    border-bottom: 0;
+  }
+
+  .setting-row h2 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .setting-row p,
+  .status,
+  .shortcut-note {
+    margin: 0.28rem 0 0;
+    color: var(--muted);
+    line-height: 1.45;
+  }
+
+  .row-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .keycap,
+  .ghost-button,
+  .primary-button,
+  kbd {
+    border-radius: 12px;
+    border: 1px solid var(--line-strong);
+    padding: 0.75rem 1rem;
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text);
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .ghost-button,
+  .primary-button {
+    cursor: pointer;
+    transition: transform 150ms ease, filter 150ms ease, background-color 150ms ease;
+  }
+
+  .ghost-button:hover:not(:disabled),
+  .primary-button:hover:not(:disabled) {
+    transform: translateY(-1px);
+    filter: brightness(1.04);
+  }
+
+  .primary-button {
+    background: linear-gradient(180deg, var(--accent-strong) 0%, var(--accent) 100%);
+    border-color: rgba(255, 205, 225, 0.28);
+    color: white;
+    box-shadow: 0 12px 20px rgba(211, 122, 164, 0.16);
+  }
+
+  .ghost-button:disabled,
+  .primary-button:disabled {
+    opacity: 0.56;
+    cursor: not-allowed;
+    transform: none;
+    filter: none;
+  }
+
+  .compose-card {
+    display: grid;
+  }
+
+  .textarea-row {
+    grid-template-columns: minmax(180px, 240px) minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .textarea-copy {
+    padding-top: 0.15rem;
+  }
+
+  .textarea-wrap {
+    display: block;
+    width: 100%;
   }
 
   textarea {
     width: 100%;
-    box-sizing: border-box;
+    min-height: 220px;
     resize: vertical;
-    min-height: 140px;
-    max-height: 260px;
-    border-radius: 14px;
-    border: 1px solid rgba(53, 73, 99, 0.25);
-    background: #fbfcfe;
-    color: #1f2732;
-    padding: 0.78rem 0.82rem;
-    font-size: 0.95rem;
-    line-height: 1.45;
-    font-family: "IBM Plex Sans", "Space Grotesk", sans-serif;
+    padding: 1rem 1.05rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    background: rgba(24, 21, 19, 0.72);
+    color: var(--text);
+    font-size: 0.98rem;
+    line-height: 1.55;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
   }
 
-  textarea:focus-visible {
-    outline: 2px solid rgba(80, 122, 191, 0.42);
+  textarea::placeholder {
+    color: #8f8379;
+  }
+
+  textarea:focus-visible,
+  .nav-item:focus-visible,
+  .ghost-button:focus-visible,
+  .primary-button:focus-visible {
+    outline: 2px solid rgba(240, 138, 183, 0.54);
     outline-offset: 2px;
   }
 
-  .actions {
-    display: flex;
+  .output-row p {
+    word-break: break-word;
+  }
+
+  .action-cluster {
     flex-wrap: wrap;
-    gap: 0.55rem;
+    justify-content: flex-end;
   }
 
-  button {
-    border-radius: 999px;
-    border: 1px solid transparent;
-    padding: 0.52rem 0.95rem;
-    font: inherit;
-    font-weight: 600;
-    font-size: 0.83rem;
-    cursor: pointer;
-    transition: transform 120ms ease, filter 120ms ease;
+  .status-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.3rem 1.2rem;
+    background: var(--panel-strong);
   }
 
-  button:hover:not(:disabled) {
-    transform: translateY(-1px);
-    filter: brightness(1.03);
-  }
-
-  button:disabled {
-    cursor: not-allowed;
-    opacity: 0.65;
-  }
-
-  .primary {
-    background: linear-gradient(120deg, #315991 0%, #507cb8 100%);
-    color: #f6fbff;
-    box-shadow: 0 6px 14px rgba(53, 82, 124, 0.28);
-  }
-
-  .secondary {
-    border-color: rgba(53, 73, 99, 0.3);
-    background: #f7f9fd;
-    color: #2f3b4c;
+  .status {
+    margin: 0;
   }
 
   .status.success {
-    color: #1f6b46;
+    color: #b7efc6;
   }
 
   .status.error {
-    color: #8a2633;
+    color: #ffb6be;
+  }
+
+  .shortcut-note {
+    margin: 0;
+    text-align: right;
   }
 
   kbd {
-    border-radius: 6px;
-    border: 1px solid rgba(43, 55, 72, 0.2);
-    padding: 0.1rem 0.35rem;
-    background: rgba(255, 255, 255, 0.75);
-    font-size: 0.74rem;
-    font-family: "IBM Plex Mono", "Menlo", monospace;
+    padding: 0.2rem 0.45rem;
+    font-size: 0.78rem;
+    background: rgba(255, 255, 255, 0.05);
   }
 
-  @media (max-width: 640px) {
-    .panel {
-      box-shadow: inset 0 0 0 1px rgba(44, 57, 75, 0.12);
+  @media (max-width: 880px) {
+    .app-shell {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto minmax(0, 1fr);
     }
 
-    .content {
+    .sidebar {
+      grid-template-rows: auto auto auto;
+      border-right: 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .nav-list {
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    }
+  }
+
+  @media (max-width: 700px) {
+    .content-scroll {
       padding: 1rem;
     }
 
-    .content-header {
-      align-items: flex-start;
+    .setting-row,
+    .textarea-row,
+    .status-row {
+      grid-template-columns: 1fr;
     }
 
-    textarea {
-      min-height: 120px;
-    }
-  }
-
-  @keyframes panel-enter {
-    from {
-      opacity: 0;
-      transform: translateY(8px) scale(0.985);
+    .status-row {
+      justify-content: start;
     }
 
-    to {
-      opacity: 1;
-      transform: translateY(0) scale(1);
+    .shortcut-note {
+      text-align: left;
+    }
+
+    .action-cluster {
+      justify-content: start;
     }
   }
 </style>
