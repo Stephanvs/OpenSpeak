@@ -1,76 +1,56 @@
 <script lang="ts">
+  import SettingsSection from './SettingsSection.svelte'
+  import SettingsRow from './SettingsRow.svelte'
+  import Badge from '../ui/Badge.svelte'
+  import Kbd from '../ui/Kbd.svelte'
+
   export let hotkey = ''
   export let submitHotkey = ''
 
   const versions = window.electron.process.versions
 </script>
 
-<section class="settings-group">
-  <p class="group-label">About</p>
-  <div class="group-card">
-    <div class="setting-row">
-      <div>
-        <h2>App</h2>
-        <p>Yapper pairs a quick text-to-speech launcher with a dedicated settings window.</p>
-      </div>
-      <div class="row-actions">
-        <span class="keycap">Desktop utility</span>
-      </div>
-    </div>
+<SettingsSection
+  eyebrow="About"
+  title="App overview"
+  description="Yapper pairs a quick text-to-speech launcher with a dedicated settings workspace."
+>
+  <SettingsRow
+    title="App role"
+    description="Use the launcher for fast synths and the settings window for the rest of the desktop configuration."
+  >
+    <Badge slot="actions" tone="secondary">Desktop utility</Badge>
+  </SettingsRow>
 
-    <div class="setting-row">
-      <div>
-        <h2>Launcher Shortcut</h2>
-        <p>Open the launcher from anywhere without leaving the keyboard.</p>
-      </div>
-      <div class="row-actions">
-        <span class="keycap">{hotkey}</span>
-      </div>
-    </div>
+  <SettingsRow
+    title="Launcher shortcut"
+    description="Open the launcher from anywhere without leaving the keyboard."
+  >
+    <Kbd slot="actions">{hotkey}</Kbd>
+  </SettingsRow>
 
-    <div class="setting-row">
-      <div>
-        <h2>Generate Shortcut</h2>
-        <p>Submit the current draft from the launcher without reaching for the mouse.</p>
-      </div>
-      <div class="row-actions">
-        <span class="keycap">{submitHotkey}</span>
-      </div>
-    </div>
-  </div>
-</section>
+  <SettingsRow
+    title="Generate shortcut"
+    description="Submit the current draft from the launcher without reaching for the mouse."
+  >
+    <Kbd slot="actions">{submitHotkey}</Kbd>
+  </SettingsRow>
+</SettingsSection>
 
-<section class="settings-group">
-  <p class="group-label">Runtime</p>
-  <div class="group-card">
-    <div class="setting-row">
-      <div>
-        <h2>Electron</h2>
-        <p>The desktop shell and native integrations.</p>
-      </div>
-      <div class="row-actions">
-        <span class="keycap">v{versions.electron}</span>
-      </div>
-    </div>
+<SettingsSection
+  eyebrow="Runtime"
+  title="Desktop stack"
+  description="Version details for the shell and runtimes backing the interface."
+>
+  <SettingsRow title="Electron" description="The desktop shell and native integrations.">
+    <Badge slot="actions" tone="outline">v{versions.electron}</Badge>
+  </SettingsRow>
 
-    <div class="setting-row">
-      <div>
-        <h2>Chromium</h2>
-        <p>The browser engine rendering the interface.</p>
-      </div>
-      <div class="row-actions">
-        <span class="keycap">v{versions.chrome}</span>
-      </div>
-    </div>
+  <SettingsRow title="Chromium" description="The browser engine rendering the interface.">
+    <Badge slot="actions" tone="outline">v{versions.chrome}</Badge>
+  </SettingsRow>
 
-    <div class="setting-row">
-      <div>
-        <h2>Node</h2>
-        <p>The runtime backing the Electron process and local tooling.</p>
-      </div>
-      <div class="row-actions">
-        <span class="keycap">v{versions.node}</span>
-      </div>
-    </div>
-  </div>
-</section>
+  <SettingsRow title="Node" description="The runtime backing the Electron process and local tooling.">
+    <Badge slot="actions" tone="outline">v{versions.node}</Badge>
+  </SettingsRow>
+</SettingsSection>

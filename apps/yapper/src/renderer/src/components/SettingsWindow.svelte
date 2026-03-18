@@ -1,6 +1,8 @@
 <script lang="ts">
   import { onMount } from 'svelte'
 
+  import Badge from './ui/Badge.svelte'
+  import Kbd from './ui/Kbd.svelte'
   import AboutSettingsPage from './settings/AboutSettingsPage.svelte'
   import AdvancedSettingsPage from './settings/AdvancedSettingsPage.svelte'
   import GeneralSettingsPage from './settings/GeneralSettingsPage.svelte'
@@ -15,14 +17,46 @@
     id: SettingsPageId
     label: string
     icon: string
+    eyebrow: string
+    description: string
   }
 
   const navItems: NavItem[] = [
-    { id: 'general', label: 'General', icon: 'G' },
-    { id: 'voices', label: 'Voices', icon: 'V' },
-    { id: 'history', label: 'History', icon: 'H' },
-    { id: 'advanced', label: 'Advanced', icon: 'A' },
-    { id: 'about', label: 'About', icon: 'i' }
+    {
+      id: 'general',
+      label: 'General',
+      icon: 'GEN',
+      eyebrow: 'Desktop behavior',
+      description: 'Launcher access, dismissal, and the day-to-day controls you reach for first.'
+    },
+    {
+      id: 'voices',
+      label: 'Voices',
+      icon: 'VOC',
+      eyebrow: 'Voice profiles',
+      description: 'Model selection, defaults, and preview workflow for the speech engine.'
+    },
+    {
+      id: 'history',
+      label: 'History',
+      icon: 'HIS',
+      eyebrow: 'Recent renders',
+      description: 'Track what the launcher exported and how long those artifacts stick around.'
+    },
+    {
+      id: 'advanced',
+      label: 'Advanced',
+      icon: 'ADV',
+      eyebrow: 'Power-user controls',
+      description: 'Future output rules, folders, and troubleshooting hooks live in this space.'
+    },
+    {
+      id: 'about',
+      label: 'About',
+      icon: 'APP',
+      eyebrow: 'Runtime details',
+      description: 'Reference app purpose, shortcuts, and the versions backing the desktop shell.'
+    }
   ]
 
   export let hotkey = ''
@@ -30,6 +64,8 @@
   export let onHideWindow: () => void | Promise<void> = () => undefined
 
   let activePageId: SettingsPageId = defaultPageId
+
+  $: activePage = navItems.find((item) => item.id === activePageId) ?? navItems[0]
 
   function isSettingsPageId(value: string): value is SettingsPageId {
     return pageIds.includes(value as SettingsPageId)
@@ -70,41 +106,67 @@
 
 <svelte:window on:keydown={handleWindowKeydown} />
 
-<main class="app-shell">
-  <aside class="sidebar">
-    <div class="brand-block">
-      <div class="logo-placeholder" aria-hidden="true">Y</div>
-      <div class="brand-copy">
-        <p class="brand-kicker">Yapper desktop</p>
-        <h1>Settings</h1>
+<main class="settings-shell">
+  <aside class="settings-sidebar">
+    <div class="settings-sidebar-card surface-card">
+      <div class="settings-brand">
+        <div class="settings-logo" aria-hidden="true">Y</div>
+        <div class="settings-brand-copy">
+          <p class="section-eyebrow">Yapper desktop</p>
+          <h1 class="settings-brand-title">Workspace settings</h1>
+          <p class="settings-brand-description">
+            A simple, chadcn-inspired control surface for the launcher and speech engine.
+          </p>
+        </div>
       </div>
     </div>
 
-    <nav class="nav-list" aria-label="Settings sections">
+    <nav class="settings-nav settings-sidebar-card surface-card" aria-label="Settings sections">
       {#each navItems as item (item.id)}
         <a
-          class:active={item.id === activePageId}
-          class="nav-item"
+          class:is-active={item.id === activePageId}
+          class="settings-nav-item"
           href={`#${item.id}`}
           aria-current={item.id === activePageId ? 'page' : undefined}
         >
-          <span class="nav-icon" aria-hidden="true">{item.icon}</span>
-          <span>{item.label}</span>
+          <span class="settings-nav-icon" aria-hidden="true">{item.icon}</span>
+          <span class="settings-nav-copy">
+            <span class="settings-nav-label">{item.label}</span>
+            <span class="settings-nav-description">{item.eyebrow}</span>
+          </span>
         </a>
       {/each}
     </nav>
 
-    <div class="sidebar-footer">
+    <div class="settings-sidebar-card surface-card">
       <div>
-        <p class="footer-label">Engine</p>
-        <p class="footer-value">Yapper TTS</p>
+        <p class="section-eyebrow">Quick keys</p>
+        <div class="settings-shortcut-list">
+          <div class="settings-shortcut-row">
+            <Kbd>{hotkey}</Kbd>
+            <span>Reveal launcher</span>
+          </div>
+          <div class="settings-shortcut-row">
+            <Kbd>Esc</Kbd>
+            <span>Hide settings</span>
+          </div>
+        </div>
       </div>
-      <span class="footer-chip">Desktop</span>
+      <Badge tone="secondary">Yapper TTS</Badge>
     </div>
   </aside>
 
-  <section class="content-pane">
-    <div class="content-scroll">
+  <section class="settings-content">
+    <div class="settings-content-scroll">
+      <header class="settings-page-header surface-card">
+        <div class="section-copy">
+          <p class="section-eyebrow">{activePage.eyebrow}</p>
+          <h2 class="settings-page-title">{activePage.label}</h2>
+          <p class="section-description">{activePage.description}</p>
+        </div>
+        <Badge tone="outline">{activePage.id}</Badge>
+      </header>
+
       {#if activePageId === 'general'}
         <GeneralSettingsPage {hotkey} {onHideWindow} />
       {:else if activePageId === 'voices'}

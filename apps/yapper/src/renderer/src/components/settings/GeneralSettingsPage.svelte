@@ -1,30 +1,32 @@
 <script lang="ts">
+  import SettingsSection from './SettingsSection.svelte'
+  import SettingsRow from './SettingsRow.svelte'
+  import Button from '../ui/Button.svelte'
+  import Kbd from '../ui/Kbd.svelte'
+
   export let hotkey = ''
   export let onHideWindow: () => void | Promise<void> = () => undefined
 </script>
 
-<section class="settings-group">
-  <p class="group-label">General</p>
-  <div class="group-card">
-    <div class="setting-row">
-      <div>
-        <h2>Launcher Shortcut</h2>
-        <p>Bring the launcher forward from anywhere.</p>
-      </div>
-      <div class="row-actions">
-        <span class="keycap">{hotkey}</span>
-      </div>
-    </div>
+<SettingsSection
+  eyebrow="General"
+  title="Desktop behavior"
+  description="Keep the launcher close at hand and dismiss the settings window just as quickly."
+>
+  <SettingsRow
+    title="Launcher shortcut"
+    description="Bring the text-to-speech launcher forward from anywhere on the desktop."
+  >
+    <Kbd slot="actions">{hotkey}</Kbd>
+  </SettingsRow>
 
-    <div class="setting-row">
-      <div>
-        <h2>Window</h2>
-        <p>Hide this window quickly when you are done.</p>
-      </div>
-      <div class="row-actions">
-        <button class="ghost-button" type="button" on:click={() => void onHideWindow()}>Hide</button
-        >
-      </div>
+  <SettingsRow
+    title="Window controls"
+    description="Close this settings view instantly when you are done making adjustments."
+  >
+    <div slot="actions" class="settings-action-cluster">
+      <Kbd>Esc</Kbd>
+      <Button variant="outline" size="sm" on:click={() => void onHideWindow()}>Hide window</Button>
     </div>
-  </div>
-</section>
+  </SettingsRow>
+</SettingsSection>

@@ -1,49 +1,45 @@
-<section class="settings-group">
-  <p class="group-label">Voices</p>
-  <div class="group-card">
-    <div class="setting-row">
-      <div>
-        <h2>Voice Library</h2>
-        <p>Switch between installed voice models here once the sidecar exposes them.</p>
-      </div>
-      <div class="row-actions">
-        <span class="footer-chip">Soon</span>
-      </div>
-    </div>
+<script lang="ts">
+  import SettingsSection from './SettingsSection.svelte'
+  import SettingsRow from './SettingsRow.svelte'
+  import Badge from '../ui/Badge.svelte'
+</script>
 
-    <div class="setting-row">
-      <div>
-        <h2>Default Voice</h2>
-        <p>The launcher currently renders with the default engine profile.</p>
-      </div>
-      <div class="row-actions">
-        <span class="keycap">System default</span>
-      </div>
-    </div>
+<SettingsSection
+  eyebrow="Voices"
+  title="Voice library"
+  description="These placeholders show where model controls will land once the sidecar exposes them."
+>
+  <SettingsRow
+    title="Installed voices"
+    description="Switch between local voice models here as soon as the engine reports them to the app."
+  >
+    <Badge slot="actions" tone="secondary">Soon</Badge>
+  </SettingsRow>
 
-    <div class="setting-row">
-      <div>
-        <h2>Speaking Style</h2>
-        <p>Voice tone controls can live here when presets are available.</p>
-      </div>
-      <div class="row-actions">
-        <span class="keycap">Natural</span>
-      </div>
-    </div>
-  </div>
-</section>
+  <SettingsRow
+    title="Default voice"
+    description="The launcher currently renders with the speech engine's default profile."
+  >
+    <Badge slot="actions" tone="outline">System default</Badge>
+  </SettingsRow>
 
-<section class="settings-group">
-  <p class="group-label">Preview</p>
-  <div class="group-card">
-    <div class="setting-row">
-      <div>
-        <h2>Preview Workflow</h2>
-        <p>Use the launcher to generate a short test clip until dedicated previews are wired up.</p>
-      </div>
-      <div class="row-actions">
-        <span class="footer-chip">Uses launcher</span>
-      </div>
-    </div>
-  </div>
-</section>
+  <SettingsRow
+    title="Speaking style"
+    description="Preset tone controls can live here when voice styles are available."
+  >
+    <Badge slot="actions" tone="outline">Natural</Badge>
+  </SettingsRow>
+</SettingsSection>
+
+<SettingsSection
+  eyebrow="Preview"
+  title="Preview workflow"
+  description="Short validation clips still run through the launcher until a dedicated preview player exists."
+>
+  <SettingsRow
+    title="Current flow"
+    description="Use the main launcher to generate a quick sample and confirm the result in Finder or Explorer."
+  >
+    <Badge slot="actions" tone="secondary">Uses launcher</Badge>
+  </SettingsRow>
+</SettingsSection>

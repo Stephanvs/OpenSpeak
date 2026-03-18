@@ -19,7 +19,7 @@
   let text = ''
   let isSynthesizing = false
   let statusTone: StatusTone = 'neutral'
-  let statusMessage = `Toggle the launcher with ${HOTKEY}.`
+  let statusMessage = ''
   let outputPath = ''
   let canSynthesize = false
 
@@ -65,7 +65,6 @@
 {:else}
   <LauncherWindow
     bind:text
-    submitHotkey={SUBMIT_HOTKEY}
     {isSynthesizing}
     {statusTone}
     {statusMessage}

@@ -1,34 +1,32 @@
-<section class="settings-group">
-  <p class="group-label">Advanced</p>
-  <div class="group-card">
-    <div class="setting-row">
-      <div>
-        <h2>Output Naming</h2>
-        <p>Template-based file naming can be added here once export settings are configurable.</p>
-      </div>
-      <div class="row-actions">
-        <span class="footer-chip">Planned</span>
-      </div>
-    </div>
+<script lang="ts">
+  import SettingsSection from './SettingsSection.svelte'
+  import SettingsRow from './SettingsRow.svelte'
+  import Badge from '../ui/Badge.svelte'
+</script>
 
-    <div class="setting-row">
-      <div>
-        <h2>Output Folder</h2>
-        <p>Custom save locations can be exposed here when the desktop workflow needs them.</p>
-      </div>
-      <div class="row-actions">
-        <span class="keycap">Default app path</span>
-      </div>
-    </div>
+<SettingsSection
+  eyebrow="Advanced"
+  title="Power-user controls"
+  description="Output rules and diagnostics stay grouped here so the everyday flow remains uncluttered."
+>
+  <SettingsRow
+    title="Output naming"
+    description="Template-based filenames can be added here once export settings become configurable."
+  >
+    <Badge slot="actions" tone="outline">Planned</Badge>
+  </SettingsRow>
 
-    <div class="setting-row">
-      <div>
-        <h2>Diagnostics</h2>
-        <p>Engine logging and troubleshooting tools can live in this section later on.</p>
-      </div>
-      <div class="row-actions">
-        <span class="footer-chip">Hidden</span>
-      </div>
-    </div>
-  </div>
-</section>
+  <SettingsRow
+    title="Output folder"
+    description="Custom save locations can surface here when the desktop workflow needs them."
+  >
+    <Badge slot="actions" tone="outline">Default app path</Badge>
+  </SettingsRow>
+
+  <SettingsRow
+    title="Diagnostics"
+    description="Engine logging and troubleshooting tools can live in this section when deeper debugging is exposed."
+  >
+    <Badge slot="actions" tone="secondary">Hidden</Badge>
+  </SettingsRow>
+</SettingsSection>

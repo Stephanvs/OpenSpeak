@@ -2,7 +2,6 @@
   import SpeechSection from './SpeechSection.svelte'
   import type { StatusTone } from '../types'
 
-  export let submitHotkey = ''
   export let text = ''
   export let isSynthesizing = false
   export let statusTone: StatusTone = 'neutral'
@@ -32,13 +31,11 @@
 <main class="launcher-shell">
   <SpeechSection
     bind:text
-    {submitHotkey}
     {isSynthesizing}
     {statusTone}
     {statusMessage}
     {outputPath}
     {canSynthesize}
-    showGroupLabel={false}
     {onSynthesizeAudio}
     {onRevealOutput}
   />
