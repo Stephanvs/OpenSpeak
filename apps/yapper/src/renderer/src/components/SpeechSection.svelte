@@ -20,26 +20,18 @@
   }
 
   $: statusMeta = statusMetaByTone[statusTone]
-  $: characterCount = text.length
 </script>
 
 <section class="launcher-frame surface-card">
   <div class="launcher-grid">
-    <div class="launcher-card launcher-card--editor surface-card surface-card--flat">
-      <div class="launcher-card-head">
-        <h1 id="tts-input-title" class="launcher-card-title">Text</h1>
-        <Badge tone="outline">{characterCount} chars</Badge>
-      </div>
-
-      <textarea
-        aria-labelledby="tts-input-title"
-        class="launcher-textarea"
-        id="tts-input"
-        bind:value={text}
-        rows="8"
-        placeholder="Enter text..."
-      ></textarea>
-    </div>
+    <textarea
+      aria-labelledby="tts-input-title"
+      class="launcher-textarea"
+      id="tts-input"
+      bind:value={text}
+      rows="8"
+      placeholder="Enter text..."
+    ></textarea>
 
     <div class="launcher-card surface-card surface-card--flat">
       <div class="launcher-card-head">
