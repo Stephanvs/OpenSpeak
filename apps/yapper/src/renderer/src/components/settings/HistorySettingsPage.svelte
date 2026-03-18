@@ -14,7 +14,7 @@
     <div class="setting-row">
       <div>
         <h2>Saved Location</h2>
-        <p>For now, the latest output path stays on the General page after each synthesis run.</p>
+        <p>For now, the latest output path stays in the launcher after each synthesis run.</p>
       </div>
       <div class="row-actions">
         <span class="keycap">Latest file only</span>

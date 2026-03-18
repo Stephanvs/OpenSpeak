@@ -1,6 +1,7 @@
 import { access, mkdir } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { pathToFileURL } from 'node:url'
 import { execFile } from 'node:child_process'
 import { promisify } from 'node:util'
 import {
@@ -22,13 +23,18 @@ if (electronSquirrelStartup) {
   app.quit()
 }
 
-const GLOBAL_SHORTCUT = 'CommandOrControl+Shift+Y'
-const MAIN_WINDOW_WIDTH = 560
-const MAIN_WINDOW_HEIGHT = 420
-const MAIN_WINDOW_MIN_WIDTH = 420
-const MAIN_WINDOW_MIN_HEIGHT = 320
+const GLOBAL_SHORTCUT = 'Meta+Shift+Y'
+const LAUNCHER_WINDOW_WIDTH = 560
+const LAUNCHER_WINDOW_HEIGHT = 420
+const LAUNCHER_WINDOW_MIN_WIDTH = 420
+const LAUNCHER_WINDOW_MIN_HEIGHT = 320
+const SETTINGS_WINDOW_WIDTH = 600
+const SETTINGS_WINDOW_HEIGHT = 700
 
-let mainWindow: BrowserWindow | null = null
+type WindowView = 'launcher' | 'settings'
+
+let launcherWindow: BrowserWindow | null = null
+let settingsWindow: BrowserWindow | null = null
 let tray: Tray | null = null
 let isQuitting = false
 
@@ -49,17 +55,52 @@ async function pathExists(filePath: string): Promise<boolean> {
   }
 }
 
-function createMainWindow(): BrowserWindow {
-  if (mainWindow) {
-    return mainWindow
+function getRendererUrl(view: WindowView): string {
+  if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
+    const url = new URL(MAIN_WINDOW_VITE_DEV_SERVER_URL)
+    url.searchParams.set('view', view)
+    return url.toString()
   }
 
-  mainWindow = new BrowserWindow({
+  const rendererPath = join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`)
+  const fileUrl = pathToFileURL(rendererPath)
+  fileUrl.searchParams.set('view', view)
+  return fileUrl.toString()
+}
+
+function configureManagedWindow(window: BrowserWindow, onClosed: () => void): void {
+  window.on('close', (event) => {
+    if (isQuitting) {
+      return
+    }
+
+    event.preventDefault()
+    window.hide()
+  })
+
+  window.on('closed', onClosed)
+
+  window.webContents.setWindowOpenHandler((details) => {
+    void shell.openExternal(details.url)
+    return { action: 'deny' }
+  })
+}
+
+function loadRenderer(window: BrowserWindow, view: WindowView): void {
+  void window.loadURL(getRendererUrl(view))
+}
+
+function createLauncherWindow(): BrowserWindow {
+  if (launcherWindow) {
+    return launcherWindow
+  }
+
+  const window = new BrowserWindow({
     title: 'Yapper',
-    width: MAIN_WINDOW_WIDTH,
-    height: MAIN_WINDOW_HEIGHT,
-    minWidth: MAIN_WINDOW_MIN_WIDTH,
-    minHeight: MAIN_WINDOW_MIN_HEIGHT,
+    width: LAUNCHER_WINDOW_WIDTH,
+    height: LAUNCHER_WINDOW_HEIGHT,
+    minWidth: LAUNCHER_WINDOW_MIN_WIDTH,
+    minHeight: LAUNCHER_WINDOW_MIN_HEIGHT,
     show: false,
     alwaysOnTop: true,
     autoHideMenuBar: true,
@@ -72,36 +113,49 @@ function createMainWindow(): BrowserWindow {
     }
   })
 
-  mainWindow.on('close', (event) => {
-    if (isQuitting) {
-      return
-    }
-
-    event.preventDefault()
-    mainWindow?.hide()
+  configureManagedWindow(window, () => {
+    launcherWindow = null
   })
+  loadRenderer(window, 'launcher')
 
-  mainWindow.on('closed', () => {
-    mainWindow = null
-  })
-
-  mainWindow.webContents.setWindowOpenHandler((details) => {
-    void shell.openExternal(details.url)
-    return { action: 'deny' }
-  })
-
-  if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
-    void mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL)
-  } else {
-    void mainWindow.loadFile(join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`))
-  }
-
-  return mainWindow
+  launcherWindow = window
+  return launcherWindow
 }
 
-function showMainWindow(): void {
-  const window = createMainWindow()
+function createSettingsWindow(): BrowserWindow {
+  if (settingsWindow) {
+    return settingsWindow
+  }
 
+  const window = new BrowserWindow({
+    title: 'Yapper Settings',
+    width: SETTINGS_WINDOW_WIDTH,
+    height: SETTINGS_WINDOW_HEIGHT,
+    resizable: false,
+    minimizable: false,
+    maximizable: false,
+    fullscreenable: false,
+    show: false,
+    autoHideMenuBar: true,
+    backgroundColor: '#e8f0f7',
+    ...(process.platform === 'linux' ? { icon: getIconPath() } : {}),
+    ...(process.platform === 'darwin' ? { titleBarStyle: 'hiddenInset' as const } : {}),
+    webPreferences: {
+      preload: join(__dirname, 'preload.js'),
+      sandbox: false
+    }
+  })
+
+  configureManagedWindow(window, () => {
+    settingsWindow = null
+  })
+  loadRenderer(window, 'settings')
+
+  settingsWindow = window
+  return settingsWindow
+}
+
+function showWindow(window: BrowserWindow): void {
   if (window.isMinimized()) {
     window.restore()
   }
@@ -110,15 +164,27 @@ function showMainWindow(): void {
   window.focus()
 }
 
-function toggleMainWindow(): void {
-  const window = createMainWindow()
+function showLauncherWindow(): void {
+  const window = createLauncherWindow()
+
+  showWindow(window)
+}
+
+function showSettingsWindow(): void {
+  const window = createSettingsWindow()
+
+  showWindow(window)
+}
+
+function toggleLauncherWindow(): void {
+  const window = createLauncherWindow()
 
   if (window.isVisible()) {
     window.hide()
     return
   }
 
-  showMainWindow()
+  showLauncherWindow()
 }
 
 function createTray(): void {
@@ -129,8 +195,15 @@ function createTray(): void {
   const trayIcon = nativeImage.createFromPath(getIconPath())
   const menu = Menu.buildFromTemplate([
     {
-      label: 'Toggle UI',
-      click: () => toggleMainWindow()
+      label: 'Toggle Launcher',
+      click: () => toggleLauncherWindow()
+    },
+    {
+      label: 'Open Settings',
+      click: () => showSettingsWindow()
+    },
+    {
+      type: 'separator'
     },
     {
       label: 'Quit',
@@ -146,7 +219,7 @@ function createTray(): void {
   )
   tray.setToolTip('Yapper')
   tray.setContextMenu(menu)
-  tray.on('click', () => toggleMainWindow())
+  tray.on('click', () => toggleLauncherWindow())
 }
 
 type YapInvocation = {
@@ -231,8 +304,10 @@ async function synthesizeText(rawText: string): Promise<string> {
 
     return parseOutputPath(stdout, outputDir)
   } catch (error) {
-    const stdout = typeof error === 'object' && error && 'stdout' in error ? String(error.stdout ?? '') : ''
-    const stderr = typeof error === 'object' && error && 'stderr' in error ? String(error.stderr ?? '') : ''
+    const stdout =
+      typeof error === 'object' && error && 'stdout' in error ? String(error.stdout ?? '') : ''
+    const stderr =
+      typeof error === 'object' && error && 'stderr' in error ? String(error.stderr ?? '') : ''
     const message = error instanceof Error ? error.message : 'Unknown sidecar execution error.'
 
     throw new Error(
@@ -250,8 +325,8 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
 
-  ipcMain.handle('yapper:hide-launcher', () => {
-    mainWindow?.hide()
+  ipcMain.handle('yapper:hide-window', (event) => {
+    BrowserWindow.fromWebContents(event.sender)?.hide()
   })
 
   ipcMain.handle('yapper:reveal-output', (_event, outputPath: string) => {
@@ -266,11 +341,12 @@ app.whenReady().then(() => {
     return synthesizeText(text)
   })
 
-  createMainWindow()
+  createLauncherWindow()
+  createSettingsWindow()
   createTray()
 
   const shortcutRegistered = globalShortcut.register(GLOBAL_SHORTCUT, () => {
-    toggleMainWindow()
+    toggleLauncherWindow()
   })
 
   if (!shortcutRegistered) {
@@ -279,7 +355,8 @@ app.whenReady().then(() => {
 
   app.on('activate', function () {
     if (BrowserWindow.getAllWindows().length === 0) {
-      createMainWindow()
+      createLauncherWindow()
+      createSettingsWindow()
     }
   })
 })

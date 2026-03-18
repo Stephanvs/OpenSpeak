@@ -1,8 +1,8 @@
 <script lang="ts">
-  export let hotkey = "";
-  export let submitHotkey = "";
+  export let hotkey = ''
+  export let submitHotkey = ''
 
-  const versions = window.electron.process.versions;
+  const versions = window.electron.process.versions
 </script>
 
 <section class="settings-group">
@@ -11,7 +11,7 @@
     <div class="setting-row">
       <div>
         <h2>App</h2>
-        <p>Yapper is a compact desktop launcher for quick text-to-speech exports.</p>
+        <p>Yapper pairs a quick text-to-speech launcher with a dedicated settings window.</p>
       </div>
       <div class="row-actions">
         <span class="keycap">Desktop utility</span>
@@ -21,7 +21,7 @@
     <div class="setting-row">
       <div>
         <h2>Launcher Shortcut</h2>
-        <p>Open the app from anywhere without leaving the keyboard.</p>
+        <p>Open the launcher from anywhere without leaving the keyboard.</p>
       </div>
       <div class="row-actions">
         <span class="keycap">{hotkey}</span>
@@ -31,7 +31,7 @@
     <div class="setting-row">
       <div>
         <h2>Generate Shortcut</h2>
-        <p>Submit the current draft while you are on the General page.</p>
+        <p>Submit the current draft from the launcher without reaching for the mouse.</p>
       </div>
       <div class="row-actions">
         <span class="keycap">{submitHotkey}</span>

@@ -39,10 +39,10 @@
     <div class="setting-row">
       <div>
         <h2>Preview Workflow</h2>
-        <p>Use the General page to generate a short test clip until dedicated previews are wired up.</p>
+        <p>Use the launcher to generate a short test clip until dedicated previews are wired up.</p>
       </div>
       <div class="row-actions">
-        <span class="footer-chip">Uses general composer</span>
+        <span class="footer-chip">Uses launcher</span>
       </div>
     </div>
   </div>

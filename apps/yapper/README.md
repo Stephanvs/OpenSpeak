@@ -4,7 +4,7 @@ Electron + Svelte desktop launcher for text-to-speech.
 
 ## What it does
 
-- Registers a global shortcut: `Cmd/Ctrl + Shift + Y`
+- Registers a global shortcut: `Meta + Shift + Y`
 - Shows a small popup window with a textarea
 - Adds a tray icon with a native menu (`Toggle UI`, `Quit`)
 - Uses `services/yap` to generate audio files in the system temp directory

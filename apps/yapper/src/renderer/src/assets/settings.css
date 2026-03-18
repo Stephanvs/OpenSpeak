@@ -6,21 +6,6 @@ body,
 }
 
 body {
-  min-height: 100%;
-  margin: 0;
-  background: #221f1c;
-  color: #f8f4ef;
-  font-family: "Trebuchet MS", "Segoe UI", sans-serif;
-  font-size: 14.5px;
-  line-height: 1.4;
-}
-
-button,
-textarea {
-  font: inherit;
-}
-
-.app-shell {
   --bg: #2a2521;
   --panel: #322d28;
   --panel-soft: #3a342f;
@@ -33,6 +18,21 @@ textarea {
   --accent: #d37aa4;
   --accent-strong: #f08ab7;
   --accent-soft: rgba(211, 122, 164, 0.18);
+  min-height: 100%;
+  margin: 0;
+  background: #221f1c;
+  color: #f8f4ef;
+  font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
+  font-size: 14.5px;
+  line-height: 1.4;
+}
+
+button,
+textarea {
+  font: inherit;
+}
+
+.app-shell {
   display: grid;
   grid-template-columns: 220px minmax(0, 1fr);
   width: 100vw;
@@ -41,6 +41,17 @@ textarea {
     radial-gradient(circle at top left, rgba(255, 190, 214, 0.06), transparent 30%),
     linear-gradient(180deg, #2d2824 0%, #28231f 100%);
   overflow: hidden;
+}
+
+.launcher-shell {
+  display: grid;
+  align-content: start;
+  height: 100%;
+  overflow: auto;
+  padding: 1rem;
+  background:
+    radial-gradient(circle at top left, rgba(255, 190, 214, 0.06), transparent 30%),
+    linear-gradient(180deg, #2d2824 0%, #28231f 100%);
 }
 
 .sidebar {
@@ -69,7 +80,7 @@ textarea {
     radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.18), transparent 40%),
     linear-gradient(145deg, #e48ab2 0%, #b15b82 100%);
   color: white;
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: Georgia, 'Times New Roman', serif;
   font-size: 2.2rem;
   font-weight: 700;
   box-shadow: 0 18px 30px rgba(0, 0, 0, 0.24);
@@ -96,7 +107,7 @@ h2 {
 }
 
 h1 {
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: Georgia, 'Times New Roman', serif;
   font-size: 1.75rem;
   font-weight: 700;
   letter-spacing: 0.02em;
@@ -122,7 +133,10 @@ h1 {
   text-align: left;
   text-decoration: none;
   cursor: pointer;
-  transition: background-color 150ms ease, color 150ms ease, transform 150ms ease;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease,
+    transform 150ms ease;
 }
 
 .nav-item:hover {
@@ -255,7 +269,10 @@ kbd {
 .ghost-button,
 .primary-button {
   cursor: pointer;
-  transition: transform 150ms ease, filter 150ms ease, background-color 150ms ease;
+  transition:
+    transform 150ms ease,
+    filter 150ms ease,
+    background-color 150ms ease;
 }
 
 .ghost-button:hover:not(:disabled),
@@ -382,6 +399,10 @@ kbd {
 }
 
 @media (max-width: 700px) {
+  .launcher-shell {
+    padding: 0.85rem;
+  }
+
   .content-scroll {
     padding: 0.85rem;
   }

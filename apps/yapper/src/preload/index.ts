@@ -2,10 +2,11 @@ import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 
 const api = {
-  hideLauncher: (): Promise<void> => ipcRenderer.invoke('yapper:hide-launcher'),
+  hideWindow: (): Promise<void> => ipcRenderer.invoke('yapper:hide-window'),
   revealOutput: (outputPath: string): Promise<void> =>
     ipcRenderer.invoke('yapper:reveal-output', outputPath),
-  synthesizeText: (text: string): Promise<string> => ipcRenderer.invoke('yapper:synthesize-text', text)
+  synthesizeText: (text: string): Promise<string> =>
+    ipcRenderer.invoke('yapper:synthesize-text', text)
 }
 
 if (process.contextIsolated) {
