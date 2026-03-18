@@ -28,7 +28,7 @@ const LAUNCHER_WINDOW_WIDTH = 560
 const LAUNCHER_WINDOW_HEIGHT = 420
 const LAUNCHER_WINDOW_MIN_WIDTH = 420
 const LAUNCHER_WINDOW_MIN_HEIGHT = 320
-const SETTINGS_WINDOW_WIDTH = 600
+const SETTINGS_WINDOW_WIDTH = 800
 const SETTINGS_WINDOW_HEIGHT = 700
 
 type WindowView = 'launcher' | 'settings'
@@ -101,12 +101,16 @@ function createLauncherWindow(): BrowserWindow {
     height: LAUNCHER_WINDOW_HEIGHT,
     minWidth: LAUNCHER_WINDOW_MIN_WIDTH,
     minHeight: LAUNCHER_WINDOW_MIN_HEIGHT,
+    resizable: false,
+    minimizable: false,
+    maximizable: false,
+    fullscreenable: false,
+    frame: false,
     show: false,
     alwaysOnTop: true,
     autoHideMenuBar: true,
     backgroundColor: '#e8f0f7',
     ...(process.platform === 'linux' ? { icon: getIconPath() } : {}),
-    ...(process.platform === 'darwin' ? { titleBarStyle: 'hiddenInset' as const } : {}),
     webPreferences: {
       preload: join(__dirname, 'preload.js'),
       sandbox: false
