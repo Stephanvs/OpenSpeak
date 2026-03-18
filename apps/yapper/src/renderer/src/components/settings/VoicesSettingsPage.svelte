@@ -5,41 +5,23 @@
 </script>
 
 <SettingsSection
-  eyebrow="Voices"
-  title="Voice library"
-  description="These placeholders show where model controls will land once the sidecar exposes them."
+  title="Voices"
 >
-  <SettingsRow
-    title="Installed voices"
-    description="Switch between local voice models here as soon as the engine reports them to the app."
-  >
+  <SettingsRow title="Installed voices">
     <Badge slot="actions" tone="secondary">Soon</Badge>
   </SettingsRow>
 
-  <SettingsRow
-    title="Default voice"
-    description="The launcher currently renders with the speech engine's default profile."
-  >
+  <SettingsRow title="Default voice">
     <Badge slot="actions" tone="outline">System default</Badge>
   </SettingsRow>
 
-  <SettingsRow
-    title="Speaking style"
-    description="Preset tone controls can live here when voice styles are available."
-  >
+  <SettingsRow title="Style">
     <Badge slot="actions" tone="outline">Natural</Badge>
   </SettingsRow>
 </SettingsSection>
 
-<SettingsSection
-  eyebrow="Preview"
-  title="Preview workflow"
-  description="Short validation clips still run through the launcher until a dedicated preview player exists."
->
-  <SettingsRow
-    title="Current flow"
-    description="Use the main launcher to generate a quick sample and confirm the result in Finder or Explorer."
-  >
-    <Badge slot="actions" tone="secondary">Uses launcher</Badge>
+<SettingsSection title="Preview">
+  <SettingsRow title="Current flow">
+    <Badge slot="actions" tone="secondary">Launcher</Badge>
   </SettingsRow>
 </SettingsSection>

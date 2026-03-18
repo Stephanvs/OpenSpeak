@@ -11,46 +11,31 @@
 </script>
 
 <SettingsSection
-  eyebrow="About"
-  title="App overview"
-  description="Yapper pairs a quick text-to-speech launcher with a dedicated settings workspace."
+  title="About"
 >
-  <SettingsRow
-    title="App role"
-    description="Use the launcher for fast synths and the settings window for the rest of the desktop configuration."
-  >
+  <SettingsRow title="App">
     <Badge slot="actions" tone="secondary">Desktop utility</Badge>
   </SettingsRow>
 
-  <SettingsRow
-    title="Launcher shortcut"
-    description="Open the launcher from anywhere without leaving the keyboard."
-  >
+  <SettingsRow title="Launcher shortcut">
     <Kbd slot="actions">{hotkey}</Kbd>
   </SettingsRow>
 
-  <SettingsRow
-    title="Generate shortcut"
-    description="Submit the current draft from the launcher without reaching for the mouse."
-  >
+  <SettingsRow title="Generate shortcut">
     <Kbd slot="actions">{submitHotkey}</Kbd>
   </SettingsRow>
 </SettingsSection>
 
-<SettingsSection
-  eyebrow="Runtime"
-  title="Desktop stack"
-  description="Version details for the shell and runtimes backing the interface."
->
-  <SettingsRow title="Electron" description="The desktop shell and native integrations.">
+<SettingsSection title="Runtime">
+  <SettingsRow title="Electron">
     <Badge slot="actions" tone="outline">v{versions.electron}</Badge>
   </SettingsRow>
 
-  <SettingsRow title="Chromium" description="The browser engine rendering the interface.">
+  <SettingsRow title="Chromium">
     <Badge slot="actions" tone="outline">v{versions.chrome}</Badge>
   </SettingsRow>
 
-  <SettingsRow title="Node" description="The runtime backing the Electron process and local tooling.">
+  <SettingsRow title="Node">
     <Badge slot="actions" tone="outline">v{versions.node}</Badge>
   </SettingsRow>
 </SettingsSection>

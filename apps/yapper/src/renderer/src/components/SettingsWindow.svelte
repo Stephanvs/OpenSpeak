@@ -17,46 +17,14 @@
     id: SettingsPageId
     label: string
     icon: string
-    eyebrow: string
-    description: string
   }
 
   const navItems: NavItem[] = [
-    {
-      id: 'general',
-      label: 'General',
-      icon: 'GEN',
-      eyebrow: 'Desktop behavior',
-      description: 'Launcher access, dismissal, and the day-to-day controls you reach for first.'
-    },
-    {
-      id: 'voices',
-      label: 'Voices',
-      icon: 'VOC',
-      eyebrow: 'Voice profiles',
-      description: 'Model selection, defaults, and preview workflow for the speech engine.'
-    },
-    {
-      id: 'history',
-      label: 'History',
-      icon: 'HIS',
-      eyebrow: 'Recent renders',
-      description: 'Track what the launcher exported and how long those artifacts stick around.'
-    },
-    {
-      id: 'advanced',
-      label: 'Advanced',
-      icon: 'ADV',
-      eyebrow: 'Power-user controls',
-      description: 'Future output rules, folders, and troubleshooting hooks live in this space.'
-    },
-    {
-      id: 'about',
-      label: 'About',
-      icon: 'APP',
-      eyebrow: 'Runtime details',
-      description: 'Reference app purpose, shortcuts, and the versions backing the desktop shell.'
-    }
+    { id: 'general', label: 'General', icon: 'GEN' },
+    { id: 'voices', label: 'Voices', icon: 'VOC' },
+    { id: 'history', label: 'History', icon: 'HIS' },
+    { id: 'advanced', label: 'Advanced', icon: 'ADV' },
+    { id: 'about', label: 'About', icon: 'APP' }
   ]
 
   export let hotkey = ''
@@ -113,10 +81,7 @@
         <div class="settings-logo" aria-hidden="true">Y</div>
         <div class="settings-brand-copy">
           <p class="section-eyebrow">Yapper desktop</p>
-          <h1 class="settings-brand-title">Workspace settings</h1>
-          <p class="settings-brand-description">
-            A simple, chadcn-inspired control surface for the launcher and speech engine.
-          </p>
+          <h1 class="settings-brand-title">Settings</h1>
         </div>
       </div>
     </div>
@@ -132,7 +97,6 @@
           <span class="settings-nav-icon" aria-hidden="true">{item.icon}</span>
           <span class="settings-nav-copy">
             <span class="settings-nav-label">{item.label}</span>
-            <span class="settings-nav-description">{item.eyebrow}</span>
           </span>
         </a>
       {/each}
@@ -160,11 +124,8 @@
     <div class="settings-content-scroll">
       <header class="settings-page-header surface-card">
         <div class="section-copy">
-          <p class="section-eyebrow">{activePage.eyebrow}</p>
           <h2 class="settings-page-title">{activePage.label}</h2>
-          <p class="section-description">{activePage.description}</p>
         </div>
-        <Badge tone="outline">{activePage.id}</Badge>
       </header>
 
       {#if activePageId === 'general'}

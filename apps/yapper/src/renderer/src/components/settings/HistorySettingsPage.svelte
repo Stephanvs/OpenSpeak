@@ -5,34 +5,19 @@
 </script>
 
 <SettingsSection
-  eyebrow="History"
-  title="Recent renders"
-  description="History becomes more useful once the launcher persists exports beyond the latest clip."
+  title="History"
 >
-  <SettingsRow
-    title="Render timeline"
-    description="Generated clips will show up here once the launcher stores a list of recent exports."
-  >
+  <SettingsRow title="Recent renders">
     <Badge slot="actions" tone="secondary">Empty</Badge>
   </SettingsRow>
 
-  <SettingsRow
-    title="Saved location"
-    description="For now, the launcher only keeps track of the most recent output path after each synthesis run."
-  >
-    <Badge slot="actions" tone="outline">Latest file only</Badge>
+  <SettingsRow title="Saved location">
+    <Badge slot="actions" tone="outline">Latest file</Badge>
   </SettingsRow>
 </SettingsSection>
 
-<SettingsSection
-  eyebrow="Cleanup"
-  title="Retention"
-  description="Archive and delete controls can plug into this section when history management is implemented."
->
-  <SettingsRow
-    title="Lifecycle rules"
-    description="Automatic cleanup settings will live here once export retention has a configurable policy."
-  >
+<SettingsSection title="Cleanup">
+  <SettingsRow title="Retention">
     <Badge slot="actions" tone="outline">Planned</Badge>
   </SettingsRow>
 </SettingsSection>

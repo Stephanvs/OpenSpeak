@@ -9,21 +9,13 @@
 </script>
 
 <SettingsSection
-  eyebrow="General"
-  title="Desktop behavior"
-  description="Keep the launcher close at hand and dismiss the settings window just as quickly."
+  title="General"
 >
-  <SettingsRow
-    title="Launcher shortcut"
-    description="Bring the text-to-speech launcher forward from anywhere on the desktop."
-  >
+  <SettingsRow title="Launcher shortcut">
     <Kbd slot="actions">{hotkey}</Kbd>
   </SettingsRow>
 
-  <SettingsRow
-    title="Window controls"
-    description="Close this settings view instantly when you are done making adjustments."
-  >
+  <SettingsRow title="Hide window">
     <div slot="actions" class="settings-action-cluster">
       <Kbd>Esc</Kbd>
       <Button variant="outline" size="sm" on:click={() => void onHideWindow()}>Hide window</Button>
