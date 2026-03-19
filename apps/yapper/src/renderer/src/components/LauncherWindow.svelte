@@ -28,7 +28,7 @@
 
 <svelte:window on:keydown={handleWindowKeydown} />
 
-<main class="launcher-shell">
+<main class="h-full w-full">
   <SpeechSection
     bind:text
     {isSynthesizing}

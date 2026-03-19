@@ -1,10 +1,26 @@
 <script lang="ts">
   import { afterUpdate } from 'svelte'
 
-  import Badge from './ui/Badge.svelte'
-  import Button from './ui/Button.svelte'
+  import { Badge } from '$lib/components/ui/badge/index.js'
+  import { Button } from '$lib/components/ui/button/index.js'
+  import * as Kbd from '$lib/components/ui/kbd/index.js'
+  import { Separator } from '$lib/components/ui/separator/index.js'
+  import { Spinner } from '$lib/components/ui/spinner/index.js'
+  import { Textarea } from '$lib/components/ui/textarea/index.js'
 
   import type { StatusTone } from '../types'
+
+  const statusMetaByTone: Record<
+    StatusTone,
+    { label: string; variant: 'secondary' | 'outline' | 'destructive' }
+  > = {
+    neutral: { label: 'Ready', variant: 'secondary' },
+    success: { label: 'Saved', variant: 'outline' },
+    error: { label: 'Problem', variant: 'destructive' }
+  }
+
+  const composerMinHeight = 132
+  const composerMaxHeight = 184
 
   export let text = ''
   export let isSynthesizing = false
@@ -15,21 +31,14 @@
   export let onSynthesizeAudio: () => void | Promise<void> = () => undefined
   export let onRevealOutput: () => void | Promise<void> = () => undefined
 
-  const statusMetaByTone = {
-    neutral: { label: 'Ready', tone: 'secondary' as const },
-    success: { label: 'Saved', tone: 'success' as const },
-    error: { label: 'Problem', tone: 'danger' as const }
-  }
-
-  const composerMinHeight = 172
-  const composerMaxHeight = 236
-
   let textareaElement: HTMLTextAreaElement | null = null
+  let composerFocused = false
 
   $: statusMeta = statusMetaByTone[statusTone]
   $: trimmedText = text.trim()
   $: wordCount = trimmedText ? trimmedText.split(/\s+/).length : 0
   $: characterCount = text.length
+  $: outputText = outputPath || 'No output yet.'
 
   afterUpdate(() => {
     syncTextareaHeight()
@@ -53,136 +62,99 @@
   }
 </script>
 
-<section class="launcher-frame surface-card">
-  <div class="launcher-grid">
-    <form
-      class="launcher-composer surface-card surface-card--flat"
-      aria-busy={isSynthesizing}
-      on:submit|preventDefault={() => void onSynthesizeAudio()}
-    >
-      <div class="launcher-composer-shell">
-        <div class="launcher-composer-glow launcher-composer-glow--left" aria-hidden="true"></div>
-        <div class="launcher-composer-glow launcher-composer-glow--right" aria-hidden="true"></div>
+<section class="grid h-full w-full min-h-0 grid-rows-[auto_minmax(0,1fr)_auto] gap-4">
+  <div class="space-y-2">
+    <div class="flex flex-wrap items-center justify-between gap-2">
+      <Badge variant="secondary">Speech Studio</Badge>
+      <Kbd.Root>Cmd/Ctrl + Enter</Kbd.Root>
+    </div>
 
-        <div class="launcher-composer-editor">
-          <textarea
-            aria-label="Text to synthesize"
-            class="launcher-textarea"
-            id="tts-input"
-            bind:this={textareaElement}
-            bind:value={text}
-            rows="1"
-            placeholder="Paste a script, paragraph, or rough notes to turn into audio..."
-            spellcheck="false"
-          ></textarea>
+    <div class="space-y-1">
+      <h1 class="text-2xl font-semibold tracking-tight">Text to speech</h1>
+      <p class="text-sm text-muted-foreground">
+        Paste your text, keep the red focus bar in view, and generate the latest audio export from
+        the launcher.
+      </p>
+    </div>
+  </div>
+
+  <form
+    aria-busy={isSynthesizing}
+    class="flex h-full min-h-0 flex-col gap-4"
+    on:focusin={() => {
+      composerFocused = true
+    }}
+    on:focusout={() => {
+      composerFocused = false
+    }}
+    on:submit|preventDefault={() => void onSynthesizeAudio()}
+  >
+    <div class="flex min-h-0 flex-1 flex-col gap-3">
+      <div
+        aria-hidden="true"
+        class={`h-1 w-full rounded-full bg-destructive transition-opacity ${composerFocused ? 'opacity-100' : 'opacity-30'}`}
+      ></div>
+
+      <Textarea
+        aria-label="Text to synthesize"
+        bind:ref={textareaElement}
+        bind:value={text}
+        class="h-full resize-none"
+        id="tts-input"
+        rows="7"
+        placeholder="Paste a script, paragraph, or rough notes to turn into audio..."
+        spellcheck="false"
+      />
+    </div>
+
+    <Separator />
+
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <div class="space-y-2">
+        <div class="flex flex-wrap items-center gap-2">
+          <Badge variant={statusMeta.variant}>{statusMeta.label}</Badge>
+          <span class="text-sm text-muted-foreground">{wordCount} words</span>
+          <span class="text-sm text-muted-foreground">{characterCount} chars</span>
         </div>
 
-        <div class="launcher-composer-toolbar">
-          <div class="launcher-composer-toolbar-left">
-            <div class="launcher-toolbar-pill launcher-toolbar-pill--primary">
-              <span class="launcher-toolbar-pill-icon" aria-hidden="true">
-                <svg viewBox="0 0 16 16" fill="none">
-                  <path
-                    d="M5.25 3.25a2.75 2.75 0 1 1 5.5 0v3.5a2.75 2.75 0 1 1-5.5 0v-3.5Z"
-                    stroke="currentColor"
-                    stroke-width="1.4"
-                  ></path>
-                  <path
-                    d="M3.5 7.25a4.5 4.5 0 1 0 9 0M8 11.75v2.5M5.75 14.25h4.5"
-                    stroke="currentColor"
-                    stroke-linecap="round"
-                    stroke-width="1.4"
-                  ></path>
-                </svg>
-              </span>
-              <span>Speech Studio</span>
-            </div>
-
-            <div class="launcher-toolbar-hint">
-              <span>Quick render</span>
-              <span class="launcher-toolbar-shortcut">Cmd/Ctrl + Enter</span>
-            </div>
-          </div>
-
-          <div class="launcher-composer-toolbar-right">
-            <div class="launcher-composer-metrics" aria-label="Input metrics">
-              <span>{wordCount} words</span>
-              <span aria-hidden="true">/</span>
-              <span>{characterCount} chars</span>
-            </div>
-
-            <button
-              class="launcher-send-button"
-              type="submit"
-              disabled={!canSynthesize}
-              aria-label={isSynthesizing ? 'Generating audio' : 'Generate audio'}
-            >
-              {#if isSynthesizing}
-                <span class="launcher-send-spinner" aria-hidden="true"></span>
-              {:else}
-                <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                  <path
-                    d="M8 1.5L8 11.25M8 1.5L4.5 5M8 1.5L11.5 5"
-                    stroke="currentColor"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="1.5"
-                  ></path>
-                  <path
-                    d="M3 14.5H13"
-                    stroke="currentColor"
-                    stroke-linecap="round"
-                    stroke-width="1.5"
-                  ></path>
-                </svg>
-              {/if}
-            </button>
-          </div>
-        </div>
+        <p class="text-sm text-muted-foreground">
+          {statusMessage ||
+            'Line breaks stay intact so narration rhythm survives the trip from draft to export.'}
+        </p>
       </div>
 
-      <div class="launcher-composer-footer">
-        <div class="launcher-status-line launcher-status-line--composer">
-          <Badge tone={statusMeta.tone}>{statusMeta.label}</Badge>
-          <p class="launcher-status-message">
-            {statusMessage ||
-              'Paste anything with pauses and line breaks preserved. Yapper renders the cleaned text into a fresh audio file.'}
-          </p>
-        </div>
+      <Button type="submit" disabled={!canSynthesize}>
+        {#if isSynthesizing}
+          <Spinner aria-label="Generating audio" />
+        {/if}
+        {isSynthesizing ? 'Generating audio' : 'Generate audio'}
+      </Button>
+    </div>
+  </form>
+
+  <div class="space-y-4">
+    <div class="flex flex-wrap items-center justify-between gap-2">
+      <div class="space-y-1">
+        <h2 class="text-lg font-semibold tracking-tight">Output</h2>
+        <p class="text-sm text-muted-foreground">Where the latest render is saved.</p>
       </div>
-    </form>
+      <Badge variant={outputPath ? 'secondary' : 'outline'}>
+        {outputPath ? 'Saved' : 'Waiting'}
+      </Badge>
+    </div>
 
-    <div class="launcher-card launcher-output-card surface-card surface-card--flat">
-      <div class="launcher-card-head launcher-card-head--output">
-        <div class="launcher-card-copy">
-          <h2 class="launcher-card-title">Output</h2>
-          <p class="launcher-card-caption">Where the latest render lands</p>
-        </div>
+    <Textarea aria-label="Latest output path" readonly rows="3" value={outputText} />
 
-        <div class="launcher-card-meta">
-          <Badge tone={outputPath ? 'success' : 'outline'}>
-            {outputPath ? 'Saved' : 'Waiting'}
-          </Badge>
-          <Button
-            variant="outline"
-            size="sm"
-            on:click={() => void onRevealOutput()}
-            disabled={!outputPath}
-          >
-            Reveal
-          </Button>
-        </div>
-      </div>
-
-      <div class:is-empty={!outputPath} class="launcher-output-path">
-        {outputPath ? outputPath : 'No output yet.'}
-      </div>
-
-      <p class="launcher-output-note">
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <p class="text-sm text-muted-foreground">
         {outputPath
           ? 'Use Reveal to open the folder that contains the exported audio file.'
           : 'The save path appears here after you generate audio.'}
       </p>
+
+      <Button variant="outline" onclick={() => void onRevealOutput()} disabled={!outputPath}>
+        Reveal
+      </Button>
     </div>
   </div>
 </section>

@@ -4,15 +4,20 @@
   export let align: 'center' | 'start' = 'center'
 </script>
 
-<div class={`settings-row settings-row--${align}`}>
-  <div class="settings-row-copy">
-    <h3 class="settings-row-title">{title}</h3>
+<div
+  class={`grid gap-4 px-6 py-4 md:grid-cols-[minmax(0,1fr)_auto] ${align === 'start' ? 'items-start' : 'md:items-center'}`}
+>
+  <div class="space-y-1">
+    <h3 class="text-sm font-medium">{title}</h3>
+
     {#if description}
-      <p class="settings-row-description">{description}</p>
+      <p class="text-sm text-muted-foreground">
+        {description}
+      </p>
     {/if}
   </div>
 
-  <div class="settings-row-actions">
+  <div class="flex flex-wrap items-center gap-2">
     <slot name="actions" />
   </div>
 </div>

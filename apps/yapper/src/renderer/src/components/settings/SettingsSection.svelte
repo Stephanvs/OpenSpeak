@@ -1,29 +1,29 @@
 <script lang="ts">
+  import { Badge } from '$lib/components/ui/badge/index.js'
+
   export let eyebrow = ''
   export let title = ''
   export let description = ''
 </script>
 
-<section class="settings-section">
-  <div class="section-heading">
-    {#if eyebrow}
-      <p class="section-eyebrow">{eyebrow}</p>
-    {/if}
+<section class="space-y-4">
+  {#if eyebrow || title || description}
+    <div class="space-y-2">
+      {#if eyebrow}
+        <Badge variant="outline">{eyebrow}</Badge>
+      {/if}
 
-    {#if title || description}
-      <div class="section-copy">
-        {#if title}
-          <h2 class="section-title">{title}</h2>
-        {/if}
+      {#if title}
+        <h2 class="text-lg font-semibold tracking-tight">{title}</h2>
+      {/if}
 
-        {#if description}
-          <p class="section-description">{description}</p>
-        {/if}
-      </div>
-    {/if}
-  </div>
+      {#if description}
+        <p class="text-sm text-muted-foreground">{description}</p>
+      {/if}
+    </div>
+  {/if}
 
-  <div class="settings-card surface-card surface-card--flat">
+  <div>
     <slot />
   </div>
 </section>
