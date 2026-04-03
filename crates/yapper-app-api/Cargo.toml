@@ -1,0 +1,33 @@
+[package]
+name = "yapper-app-api"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1.0.102"
+chrono = { version = "0.4.44", features = ["serde"] }
+hound = "3.5.1"
+log = "0.4.29"
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.149"
+specta = { version = "=2.0.0-rc.22", features = ["derive"] }
+specta-typescript = "0.0.9"
+tauri = "2.10.3"
+tauri-plugin-dialog = "2.6"
+tauri-plugin-fs = "2.4.5"
+tauri-plugin-global-shortcut = "2.3.1"
+tauri-plugin-log = "2"
+tauri-plugin-opener = "2.5.3"
+tauri-plugin-os = "2.3.2"
+tauri-plugin-process = "2.3.1"
+tauri-plugin-single-instance = "2.3.2"
+tauri-plugin-store = "2.4.2"
+tauri-plugin-updater = "2.10.0"
+tauri-specta = { version = "=2.0.0-rc.21", features = ["derive", "typescript"] }
+yapper-audio-core = { path = "../yapper-audio-core" }
+yapper-audio-windows = { path = "../yapper-audio-windows" }
+yapper-domain = { path = "../yapper-domain" }
+yapper-output = { path = "../yapper-output" }
+yapper-platform-windows = { path = "../yapper-platform-windows" }
+yapper-settings = { path = "../yapper-settings" }
+yapper-transcribe = { path = "../yapper-transcribe" }

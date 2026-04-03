@@ -1,54 +1,95 @@
-# Yapper Electron
+# Yapper
 
-Electron + Svelte desktop launcher for text-to-speech.
+Windows-first desktop app built with SvelteKit, Tauri, Bun, and Rust.
 
-## What it does
+## Prerequisites
 
-- Registers a global shortcut: `Meta + Shift + Y`
-- Shows a small popup window with a textarea
-- Adds a tray icon with a native menu (`Toggle UI`, `Quit`)
-- Uses `services/yap` to generate audio files in the system temp directory
+Yapper currently targets Windows because the native desktop crates are Windows-specific.
 
-## Starter pack
+Install these dependencies before trying to run or build the app:
 
-This app was scaffolded from the `@quick-start/electron` starter using the `svelte-ts` template.
+1. Bun
 
-## Requirements
+```powershell
+bun --version
+```
 
-- Bun
-- .NET SDK 10
+The workspace is pinned to `bun@1.3.11` in the root `package.json`.
 
-## Sidecar setup
+2. Rust stable with the MSVC toolchain
 
-`bun run sidecar:build` publishes `services/yap` for the current platform and copies the native binary to `resources/yap/` for Electron packaging.
+```powershell
+rustup toolchain install stable-x86_64-pc-windows-msvc
+rustup default stable-x86_64-pc-windows-msvc
+rustc --version
+cargo --version
+```
 
-`bun run dev` runs that sidecar build automatically before starting Electron.
+The desktop crate declares `rust-version = "1.77.2"`, so any recent stable toolchain is fine.
 
-## Run locally
+3. Visual Studio Build Tools 2022 or Visual Studio 2022 with the C++ build tools installed
 
-```bash
+Required pieces:
+
+- MSVC x64/x86 build tools
+- Windows 10/11 SDK
+
+The easiest option is to install the `Desktop development with C++` workload.
+
+This repo uses `scripts/run-tauri-with-msvc.ps1` to locate a working MSVC toolchain automatically before invoking Tauri.
+
+4. Microsoft Edge WebView2 Runtime
+
+Tauri uses WebView2 on Windows. It is usually already installed on Windows 11, but if it is missing the desktop app will not start correctly.
+
+## Install dependencies
+
+From the repository root:
+
+```powershell
 bun install
-bun run dev
 ```
 
-## Package and distribute
+You do not need to install the Tauri CLI globally. The repo uses the local package from `apps/yapper/node_modules`.
 
-```bash
-bun run package
-bun run make
+## Running the app
+
+Browser-only frontend dev server from the repo root:
+
+```powershell
+bun run desktop:dev
 ```
 
-Use `bun run build:mac`, `bun run build:win`, or `bun run build:linux` from a matching environment when you want platform-specific distributables.
+Desktop Tauri dev mode from the repo root:
 
-## Releases
+```powershell
+bun run --cwd apps/yapper tauri dev
+```
 
-- GitHub Actions builds release artifacts from `.github/workflows/yapper-release.yml`.
-- Push a tag that matches the app version, like `v1.0.0`, to publish a release.
-- Manual runs should target an existing `vX.Y.Z` tag that matches `apps/yapper/package.json`.
+## Building the desktop app
 
-## Notes
+From the repo root:
 
-- Generated audio is written to your system temp directory under `yapper-audio`.
-- In development, the app can fall back to `dotnet run --project ../../services/yap` if the sidecar binary is missing.
-- Packaging and installers now run through Electron Forge with the Vite plugin.
-- The migration plan for moving from Tauri to Electron lives in `MIGRATION_PLAN.md`.
+```powershell
+bun run desktop:tauri:build
+```
+
+The built executable is written to:
+
+```text
+target/release/yapper-desktop.exe
+```
+
+## Useful checks
+
+```powershell
+bun run desktop:check
+bun run desktop:lint
+bun run desktop:test
+```
+
+## Troubleshooting
+
+If the Rust build fails with errors like `vcruntime.h` or `excpt.h` not found, your MSVC environment is incomplete. Install or repair Visual Studio Build Tools 2022 with the C++ workload and Windows SDK.
+
+If `bun run --cwd apps/yapper tauri dev` or `bun run desktop:tauri:build` cannot find a usable Visual Studio install, make sure at least one installation includes the `Microsoft.VisualStudio.Component.VC.Tools.x86.x64` component.

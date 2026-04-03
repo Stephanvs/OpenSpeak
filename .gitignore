@@ -1,3 +1,10 @@
 .DS_Store
 target/
 xcuserdata/
+node_modules/
+dist/
+build/
+.svelte-kit/
+.playwright/
+playwright-report/
+test-results/
