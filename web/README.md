@@ -1,6 +1,6 @@
-# Yapper Web
+# OpenSpeak Web
 
-Minimal landing page for Yapper, built with Svelte and managed with Bun.
+Minimal landing page for OpenSpeak, built with Svelte and managed with Bun.
 
 ## Commands
 

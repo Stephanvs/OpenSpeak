@@ -1,9 +1,9 @@
 {
-  "name": "yapper-web",
+  "name": "openspeak-web",
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "Minimal marketing site for Yapper",
+  "description": "Minimal marketing site for OpenSpeak",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
