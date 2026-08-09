@@ -3,15 +3,11 @@
   "private": true,
   "packageManager": "bun@1.3.11",
   "workspaces": [
-    "apps/*",
     "web"
   ],
   "scripts": {
-    "desktop:dev": "bun run --cwd apps/yapper dev",
-    "desktop:build": "bun run --cwd apps/yapper build",
-    "desktop:check": "bun run --cwd apps/yapper check",
-    "desktop:lint": "bun run --cwd apps/yapper lint",
-    "desktop:test": "bun run --cwd apps/yapper test:unit -- --run",
-    "desktop:tauri:build": "bun run --cwd apps/yapper tauri build --debug --no-bundle"
+    "dev": "bun run --cwd web dev",
+    "build": "bun run --cwd web build",
+    "check": "bun run --cwd web check"
   }
 }
