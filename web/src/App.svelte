@@ -1,9 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte'
 
-  const sectionIds = ['showcase', 'getting-started', 'providers', 'options', 'playback']
-  let activeSection = $state('')
-
   type InstallOS = 'unix' | 'windows'
 
   const installCommands: Record<InstallOS, string> = {
@@ -11,9 +8,31 @@
     windows: 'irm https://openspeak.sh/install.ps1 | iex',
   }
 
+  const demoTabs = [
+    { title: 'Agent speak', detail: 'Hear task updates' },
+    { title: 'Articles', detail: 'Audio for every post' },
+    { title: 'Podcasts', detail: 'Narrate transcripts' },
+    { title: 'Providers', detail: 'Grok + ElevenLabs' },
+    { title: 'CLI control', detail: 'Override every call' },
+  ]
+
+  let activeDemo = $state(0)
   let installOS = $state<InstallOS>('unix')
   let copied = $state(false)
   let copyTimeout: ReturnType<typeof setTimeout> | undefined
+  let demoInterval: ReturnType<typeof setInterval> | undefined
+
+  function selectDemo(index: number) {
+    activeDemo = index
+    restartDemoInterval()
+  }
+
+  function restartDemoInterval() {
+    clearInterval(demoInterval)
+    demoInterval = setInterval(() => {
+      activeDemo = (activeDemo + 1) % demoTabs.length
+    }, 8000)
+  }
 
   function selectInstallOS(os: InstallOS) {
     installOS = os
@@ -33,23 +52,12 @@
 
   onMount(() => {
     installOS = /windows/i.test(navigator.userAgent) ? 'windows' : 'unix'
+    restartDemoInterval()
 
-    const sections = sectionIds
-      .map((id) => document.getElementById(id))
-      .filter((el): el is HTMLElement => el !== null)
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) activeSection = entry.target.id
-        }
-      },
-      { rootMargin: '-40% 0px -55% 0px', threshold: 0 },
-    )
-
-    for (const section of sections) observer.observe(section)
-
-    return () => observer.disconnect()
+    return () => {
+      clearTimeout(copyTimeout)
+      clearInterval(demoInterval)
+    }
   })
 </script>
 
@@ -63,275 +71,267 @@
 
 <a class="skip-link" href="#main">Skip to content</a>
 
-<div class="page">
-  <header class="header">
-    <a class="wordmark" href="/" aria-label="OpenSpeak home">
-      <span class="mark" aria-hidden="true">&gt;_</span>
-      <span>OpenSpeak</span>
-    </a>
+<main id="main" class="landing">
+  <section class="top-experience" aria-labelledby="page-title">
+    <div class="page-rails" aria-hidden="true"></div>
 
-    <nav class="nav" aria-label="Primary">
-      <a href="#showcase" class:active={activeSection === 'showcase'} aria-current={activeSection === 'showcase' ? 'true' : undefined}>Showcase</a>
-      <a href="#getting-started" class:active={activeSection === 'getting-started'} aria-current={activeSection === 'getting-started' ? 'true' : undefined}>Getting Started</a>
-      <a href="#providers" class:active={activeSection === 'providers'} aria-current={activeSection === 'providers' ? 'true' : undefined}>Providers</a>
-      <a href="#options" class:active={activeSection === 'options'} aria-current={activeSection === 'options' ? 'true' : undefined}>Options</a>
-      <a href="#playback" class:active={activeSection === 'playback'} aria-current={activeSection === 'playback' ? 'true' : undefined}>Playback</a>
-      <a class="nav-cta" href="https://openspeak.sh" target="_blank" rel="noreferrer">
-        Documentation <span aria-hidden="true">↗</span>
+    <nav class="site-header" aria-label="OpenSpeak navigation">
+      <a class="brand" href="/" aria-label="OpenSpeak home">
+        <span class="brand-mark" aria-hidden="true">&gt;_</span>
+        <span class="brand-wordmark">OpenSpeak</span>
+      </a>
+      <a class="marketing-button signup-button" href="https://openspeak.sh" target="_blank" rel="noreferrer">
+        <span>Documentation</span>
       </a>
     </nav>
-  </header>
 
-  <main id="main">
-    <section class="hero" aria-labelledby="page-title">
-      <p class="kicker">Command-line text to speech, written in Rust</p>
-      <h1 id="page-title">Your terminal just found its voice</h1>
-      <p class="lede">
-        OpenSpeak turns text into speech with Grok Voice or ElevenLabs. Play the
-        result instantly through your system's audio output, or write it straight
-        to a file — one command, no config file to manage.
+    <header class="hero-copy">
+      <div class="eyebrow-logo" aria-hidden="true">
+        <span>&gt;_</span>
+        <b>OpenSpeak</b>
+      </div>
+      <h1 id="page-title">Your terminal just<br />found its voice.</h1>
+      <p>
+        Turn text into speech with Grok Voice or ElevenLabs. Play it instantly,
+        save it to a file, and control everything from one small Rust command.
       </p>
+      <div class="hero-meta">
+        <a class="github-link" href="https://github.com/Stephanvs/yapper" target="_blank" rel="noreferrer">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="currentColor" d="M12 2C6.48 2 2 6.58 2 12.23c0 4.52 2.87 8.35 6.84 9.71.5.1.68-.22.68-.49 0-.24-.01-1.05-.02-1.9-2.78.62-3.37-1.21-3.37-1.21-.45-1.18-1.11-1.49-1.11-1.49-.91-.64.07-.63.07-.63 1 .08 1.53 1.06 1.53 1.06.9 1.57 2.35 1.12 2.92.86.09-.66.35-1.12.64-1.38-2.22-.26-4.56-1.14-4.56-5.06 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05A9.3 9.3 0 0 1 12 7.14a9.3 9.3 0 0 1 2.5.35c1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.93-2.35 4.8-4.58 5.05.36.32.68.94.68 1.9 0 1.37-.01 2.47-.01 2.81 0 .27.18.59.69.49A10.25 10.25 0 0 0 22 12.23C22 6.58 17.52 2 12 2Z" />
+          </svg>
+          <span>View on GitHub</span>
+        </a>
+      </div>
+    </header>
 
-      <div class="terminal" aria-label="OpenSpeak command examples">
-        <div class="terminal-bar">
-          <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
-          <span class="terminal-title">openspeak</span>
+    <section class="showcase" aria-label="OpenSpeak examples">
+      <div class="tabs" role="tablist" aria-label="OpenSpeak demonstrations">
+        {#each demoTabs as tab, index}
+          <button
+            class:active={activeDemo === index}
+            class="demo-tab"
+            type="button"
+            role="tab"
+            aria-selected={activeDemo === index}
+            onclick={() => selectDemo(index)}
+          >
+            <span>0{index + 1}</span>
+            <strong>{tab.title}</strong>
+            <small>{tab.detail}</small>
+            <i aria-hidden="true"><b></b></i>
+          </button>
+        {/each}
+      </div>
+
+      <div class="composition-well">
+        <div class="composition" role="img" aria-label={`${demoTabs[activeDemo].title} command-line demonstration`}>
+          <div class="demo-window">
+            <div class="demo-sidebar" aria-hidden="true">
+              <div class="demo-product"><span>&gt;_</span><b>openspeak</b></div>
+              <div class="demo-nav-line active"></div>
+              <div class="demo-nav-line"></div>
+              <div class="demo-nav-line short"></div>
+              <div class="demo-sidebar-rule"></div>
+              <div class="demo-nav-line"></div>
+              <div class="demo-nav-line short"></div>
+            </div>
+
+            <div class="demo-workspace">
+              <div class="workspace-bar">
+                <span>{demoTabs[activeDemo].title}</span>
+                <div><i></i><i></i><i></i></div>
+              </div>
+
+              <div class="demo-stage">
+                {#if activeDemo === 0}
+                  <div class="task-card">
+                    <span class="task-label">AGENT UPDATE</span>
+                    <h2>Release notes are ready.</h2>
+                    <p>The agent finished its task and handed the summary to OpenSpeak.</p>
+                    <div class="waveform" aria-hidden="true">
+                      {#each [14, 24, 38, 54, 31, 62, 46, 26, 42, 58, 34, 18] as height}
+                        <i style={`height:${height}px`}></i>
+                      {/each}
+                    </div>
+                  </div>
+                  <div class="command-card">
+                    <span class="prompt">$</span>
+                    <code>openspeak speak "$SUMMARY"</code>
+                    <span class="command-status">played</span>
+                  </div>
+                {:else if activeDemo === 1}
+                  <div class="document-card">
+                    <span class="document-kicker">ARTICLE.MD</span>
+                    <h2>A more human way to keep up.</h2>
+                    <p>Publish a matching audio clip with every post so readers can listen on the move.</p>
+                    <div class="document-lines" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+                  </div>
+                  <div class="audio-player"><b>▶</b><span></span><span></span><span></span><span></span><small>02:14</small></div>
+                {:else if activeDemo === 2}
+                  <div class="podcast-card">
+                    <div class="record" aria-hidden="true"><i></i></div>
+                    <div><span class="task-label">NEW EPISODE</span><h2>Ship it.</h2><p>Transcript narrated and saved as an MP3.</p></div>
+                  </div>
+                  <div class="command-card">
+                    <span class="prompt">$</span>
+                    <code>openspeak synthesize "$(cat transcript.txt)"</code>
+                    <span class="command-status">saved</span>
+                  </div>
+                {:else if activeDemo === 3}
+                  <div class="provider-choice">
+                    <article><span>01</span><h2>Grok Voice</h2><p>Fast, expressive speech through xAI.</p><b>DEFAULT</b></article>
+                    <article><span>02</span><h2>ElevenLabs</h2><p>Multilingual voices and models.</p></article>
+                  </div>
+                {:else}
+                  <div class="flags-card">
+                    <span class="task-label">PER-CALL CONTROL</span>
+                    <h2>Override anything.</h2>
+                    <div class="flag-pills">
+                      <code>--provider</code><code>--voice</code><code>--model</code><code>--codec</code><code>--speed</code><code>--language</code>
+                    </div>
+                  </div>
+                  <div class="command-card">
+                    <span class="prompt">$</span>
+                    <code>openspeak speak "Hello" --voice eve --speed 1.1</code>
+                    <span class="command-status">ready</span>
+                  </div>
+                {/if}
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
+    </section>
+  </section>
 
-        <div class="terminal-body">
-          <div class="command">
-            <span class="prompt" aria-hidden="true">$</span>
-            <code>export <span class="flag">XAI_API_KEY</span>=<span class="string">"..."</span></code>
-          </div>
-
-          <div class="command">
-            <span class="prompt" aria-hidden="true">$</span>
-            <code>openspeak speak <span class="string">"Good morning."</span></code>
-          </div>
-          <p class="output">[grok] played 51200 bytes (audio/mpeg) on the default audio device</p>
-
-          <div class="command command-secondary">
-            <span class="prompt" aria-hidden="true">$</span>
-            <code
-              >openspeak synthesize <span class="string">"Ship it."</span>
-              <span class="flag">--output</span> ./audio</code
-            >
-          </div>
-          <p class="output">
-            [grok] wrote 51200 bytes to
-            ./audio/openspeak-20260809101530-3f9a2b6c1e4d4a2f9b6c1e4d4a2f9b6c.mp3
+  <div class="below-fold">
+    <div class="content-rails">
+      <section class="platform-block getting-started" id="getting-started" aria-labelledby="getting-started-title">
+        <div class="block-copy">
+          <div class="section-kicker">GETTING STARTED</div>
+          <h2 id="getting-started-title">Install in one command.</h2>
+          <p>
+            Detects your platform and puts <code>openspeak</code> on your PATH —
+            no package manager and no manual download.
           </p>
-
-          <div class="command command-secondary">
-            <span class="prompt" aria-hidden="true">$</span>
-            <span class="cursor" aria-hidden="true"></span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="showcase" id="showcase" aria-labelledby="showcase-title">
-      <div class="section-head showcase-head">
-        <p class="eyebrow">What will you make speak?</p>
-        <h2 id="showcase-title" class="section-heading">One small command, many ways to be heard</h2>
-      </div>
-      <p class="section-lede">
-        OpenSpeak slots into the tools and content you already use. Here are a few
-        places to start.
-      </p>
-
-      <div class="showcase-grid">
-        <article class="showcase-card showcase-card-featured">
-          <div class="showcase-visual agent-visual" aria-hidden="true">
-            <div class="agent-prompt"><span>&gt;_</span> task complete</div>
-            <div class="agent-orb"><i></i><i></i><i></i><i></i><i></i></div>
-            <div class="agent-wave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-          </div>
-          <div class="showcase-copy">
-            <p class="card-number">01</p>
-            <h3>Agent speak</h3>
-            <p>Give your agent a voice. Add a custom skill and let it say the things that matter, right when they happen.</p>
-            <code>openspeak speak "$SUMMARY"</code>
-          </div>
-        </article>
-
-        <article class="showcase-card">
-          <div class="showcase-visual article-visual" aria-hidden="true">
-            <div class="article-sheet">
-              <span></span><span></span><span></span><span></span>
-            </div>
-            <div class="listen-chip"><b>▶</b><em></em><em></em><em></em><em></em><em></em></div>
-          </div>
-          <div class="showcase-copy">
-            <p class="card-number">02</p>
-            <h3>Blog articles</h3>
-            <p>Publish a matching audio clip with every post so readers can keep up on the move.</p>
-            <code>openspeak synthesize "$(cat article.md)"</code>
-          </div>
-        </article>
-
-        <article class="showcase-card">
-          <div class="showcase-visual podcast-visual" aria-hidden="true">
-            <div class="podcast-disc"><span></span><b></b></div>
-            <div class="podcast-track"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-          </div>
-          <div class="showcase-copy">
-            <p class="card-number">03</p>
-            <h3>Podcast transcripts</h3>
-            <p>Turn a transcript, notes, or plain text file into a narrated episode or spoken instructions.</p>
-            <code>openspeak synthesize "$(cat transcript.txt)"</code>
-          </div>
-        </article>
-
-        <article class="showcase-card showcase-card-open">
-          <div class="showcase-visual open-visual" aria-hidden="true">
-            <span>?</span>
-            <div class="open-spark open-spark-one"></div>
-            <div class="open-spark open-spark-two"></div>
-            <div class="open-spark open-spark-three"></div>
-          </div>
-          <div class="showcase-copy">
-            <p class="card-number">04</p>
-            <h3>Your use-case here</h3>
-            <p>Voice a notification, narrate a demo, make an accessibility tool, or surprise us with something new.</p>
-            <a class="showcase-link" href="#getting-started">Make it speak <span aria-hidden="true">→</span></a>
-          </div>
-        </article>
-      </div>
-    </section>
-
-    <section class="getting-started" id="getting-started" aria-labelledby="getting-started-title">
-      <div class="section-head">
-        <p class="eyebrow">Getting Started</p>
-        <h2 id="getting-started-title" class="section-heading">Install in one command</h2>
-      </div>
-      <p class="section-lede">
-        Detects your platform and puts <code>openspeak</code> on your PATH — no
-        package manager, no manual download.
-      </p>
-
-      <div class="install">
-        <div class="install-toggle" role="group" aria-label="Choose your platform">
-          <button
-            type="button"
-            class:active={installOS === 'unix'}
-            aria-pressed={installOS === 'unix'}
-            onclick={() => selectInstallOS('unix')}
-          >
-            macOS / Linux
-          </button>
-          <button
-            type="button"
-            class:active={installOS === 'windows'}
-            aria-pressed={installOS === 'windows'}
-            onclick={() => selectInstallOS('windows')}
-          >
-            Windows
-          </button>
+          <a class="section-link" href="https://openspeak.sh" target="_blank" rel="noreferrer">
+            <span>Read the documentation</span><span aria-hidden="true">↗</span>
+          </a>
         </div>
 
-        <div class="terminal" aria-label="Install command">
-          <div class="terminal-bar">
-            <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
-            <span class="terminal-title">{installOS === 'windows' ? 'powershell' : 'sh'}</span>
+        <div class="install-panel">
+          <div class="install-toggle" role="group" aria-label="Choose your platform">
+            <button type="button" class:active={installOS === 'unix'} aria-pressed={installOS === 'unix'} onclick={() => selectInstallOS('unix')}>macOS / Linux</button>
+            <button type="button" class:active={installOS === 'windows'} aria-pressed={installOS === 'windows'} onclick={() => selectInstallOS('windows')}>Windows</button>
           </div>
-          <div class="terminal-body">
-            <div class="command">
-              <span class="prompt" aria-hidden="true">{installOS === 'windows' ? '>' : '$'}</span>
-              <span class="install-command-line">
-                <code>{installCommands[installOS]}</code>
-                <button type="button" class="copy-btn" onclick={copyInstallCommand}>
-                  {copied ? 'Copied' : 'Copy'}
-                </button>
-              </span>
+          <div class="install-terminal">
+            <div class="terminal-bar">
+              <span>{installOS === 'windows' ? 'powershell' : 'terminal'}</span>
+              <i aria-hidden="true"></i>
             </div>
+            <div class="install-command">
+              <span class="prompt">{installOS === 'windows' ? '>' : '$'}</span>
+              <code>{installCommands[installOS]}</code>
+              <button type="button" onclick={copyInstallCommand}>{copied ? 'Copied' : 'Copy'}</button>
+            </div>
+          </div>
+          <p class="install-note"><span></span> No config file required</p>
+        </div>
+      </section>
+
+      <section class="platform-block context-block" id="showcase" aria-labelledby="showcase-title">
+        <div class="context-reads" aria-hidden="true">
+          <div class="context-track">
+            <span>Agent finished a task <b>›</b></span>
+            <span>Article ready to publish <b>›</b></span>
+            <span>Transcript ready to narrate <b>›</b></span>
+            <span>Agent finished a task <b>›</b></span>
+            <span>Article ready to publish <b>›</b></span>
+            <span>Transcript ready to narrate <b>›</b></span>
           </div>
         </div>
-      </div>
-    </section>
+        <div class="section-kicker">WHAT WILL YOU MAKE SPEAK?</div>
+        <h2 id="showcase-title">One small command, many ways to be heard.</h2>
+        <p>
+          Give an agent a voice, add audio to every article, narrate a transcript,
+          voice a notification, or build something entirely new.
+        </p>
+      </section>
 
-    <section class="providers" id="providers" aria-labelledby="providers-title">
-      <div class="section-head">
-        <p class="eyebrow">Providers</p>
-        <h2 id="providers-title" class="section-heading">Configured entirely by environment variables</h2>
-      </div>
-      <p class="section-lede">
-        There is no config file to manage. Set a few environment variables and
-        OpenSpeak picks a default provider, voice, and output format for every
-        request; <code>--provider</code> or <code>OPENSPEAK_DEFAULT_PROVIDER</code>
-        chooses between them (<code>grok</code> by default).
-      </p>
-
-      <div class="provider-grid">
-        <article class="provider-card">
-          <h3>Grok Voice <span class="tag">default</span></h3>
-          <dl>
-            <div><dt><code>XAI_API_KEY</code></dt><dd>xAI API key</dd></div>
-            <div><dt><code>XAI_DEFAULT_VOICE_ID</code></dt><dd>default <code>eve</code></dd></div>
-            <div><dt><code>XAI_DEFAULT_OUTPUT_FORMAT</code></dt><dd>default <code>mp3</code></dd></div>
-            <div><dt><code>XAI_DEFAULT_SAMPLE_RATE</code></dt><dd>default <code>24000</code> Hz</dd></div>
-          </dl>
-        </article>
-        <article class="provider-card">
-          <h3>ElevenLabs</h3>
-          <dl>
-            <div><dt><code>ELEVENLABS_API_KEY</code></dt><dd>ElevenLabs API key</dd></div>
-            <div>
-              <dt><code>ELEVENLABS_DEFAULT_VOICE_ID</code></dt>
-              <dd>required, unless <code>--voice</code> is passed per call</dd>
-            </div>
-            <div>
-              <dt><code>ELEVENLABS_DEFAULT_MODEL_ID</code></dt>
-              <dd>default <code>eleven_multilingual_v2</code></dd>
-            </div>
-            <div>
-              <dt><code>ELEVENLABS_DEFAULT_OUTPUT_FORMAT</code></dt>
-              <dd>default <code>mp3_44100_128</code></dd>
-            </div>
-          </dl>
-        </article>
-      </div>
-    </section>
-
-    <section class="options" id="options" aria-labelledby="options-title">
-      <div class="section-head">
-        <p class="eyebrow">Options</p>
-        <h2 id="options-title" class="section-heading">Override anything, per call</h2>
-      </div>
-      <dl class="options-grid">
-        <div><dt><code>--provider</code></dt><dd>use <code>grok</code> or <code>elevenlabs</code> for this call</dd></div>
-        <div><dt><code>--voice</code></dt><dd>provider-specific voice or voice ID</dd></div>
-        <div>
-          <dt><code>--model</code></dt>
-          <dd>provider-specific model override (ElevenLabs only — xAI voices don't take a model)</dd>
+      <section class="platform-block providers-block" id="providers" aria-labelledby="providers-title">
+        <div class="block-copy providers-copy">
+          <div class="section-kicker">PROVIDERS</div>
+          <h2 id="providers-title">Configured entirely by environment variables.</h2>
+          <p>
+            Set your API key and defaults once. Use <code>--provider</code> or
+            <code>OPENSPEAK_DEFAULT_PROVIDER</code> to choose between them.
+          </p>
         </div>
-        <div><dt><code>--codec</code></dt><dd><code>mp3</code>, <code>wav</code>, <code>pcm</code>, <code>mulaw</code>, or <code>alaw</code></dd></div>
-        <div><dt><code>--speed</code></dt><dd>speech speed override</dd></div>
-        <div><dt><code>--sample-rate</code></dt><dd>output sample rate in Hz, where the provider supports it</dd></div>
-        <div><dt><code>--bit-rate</code></dt><dd>output bit rate in bits per second, where the provider supports it</dd></div>
-        <div><dt><code>--language</code></dt><dd>BCP-47 language code, where the provider supports it</dd></div>
-      </dl>
-    </section>
+        <div class="provider-list">
+          <article>
+            <span class="point-index">01</span>
+            <div><h3>Grok Voice <b>DEFAULT</b></h3><p><code>XAI_API_KEY</code>, voice <code>eve</code>, MP3 at 24 kHz.</p></div>
+          </article>
+          <article>
+            <span class="point-index">02</span>
+            <div><h3>ElevenLabs</h3><p><code>ELEVENLABS_API_KEY</code>, voice ID, model, and output format.</p></div>
+          </article>
+          <article>
+            <span class="point-index">03</span>
+            <div><h3>No config file</h3><p>Everything is explicit, portable, and easy to automate.</p></div>
+          </article>
+        </div>
+      </section>
 
-    <section class="playback" id="playback" aria-labelledby="playback-title">
-      <div class="section-head">
-        <p class="eyebrow">Playback</p>
-        <h2 id="playback-title" class="section-heading">Plays through your own system</h2>
-      </div>
-      <p class="section-lede">
-        OpenSpeak doesn't ship its own audio stack. <code>speak</code> hands the
-        generated audio to whatever your OS already has.
-      </p>
-      <ul class="platform-list">
-        <li><span>macOS</span><p>the built-in <code>afplay</code> command</p></li>
-        <li><span>Linux</span><p><code>mpg123</code> for MP3, <code>aplay</code> for other formats</p></li>
-        <li><span>Windows</span><p>the built-in WinMM MCI API</p></li>
-      </ul>
-    </section>
-  </main>
+      <section class="platform-block options-block" id="options" aria-labelledby="options-title">
+        <div class="block-copy">
+          <div class="section-kicker">OPTIONS</div>
+          <h2 id="options-title">Override anything, per call.</h2>
+          <p>Keep sensible defaults, then tune a single request without touching global configuration.</p>
+        </div>
+        <dl class="options-grid">
+          <div><dt><code>--provider</code></dt><dd>grok or elevenlabs</dd></div>
+          <div><dt><code>--voice</code></dt><dd>voice or voice ID</dd></div>
+          <div><dt><code>--model</code></dt><dd>model override</dd></div>
+          <div><dt><code>--codec</code></dt><dd>mp3, wav, pcm, mulaw, alaw</dd></div>
+          <div><dt><code>--speed</code></dt><dd>speech speed</dd></div>
+          <div><dt><code>--sample-rate</code></dt><dd>output sample rate</dd></div>
+          <div><dt><code>--bit-rate</code></dt><dd>output bit rate</dd></div>
+          <div><dt><code>--language</code></dt><dd>BCP-47 language code</dd></div>
+        </dl>
+      </section>
 
-  <footer>
-    <p>Small on purpose.</p>
-    <a href="https://openspeak.sh" target="_blank" rel="noreferrer">Documentation ↗</a>
-  </footer>
-</div>
+      <section class="platform-block playback-block" id="playback" aria-labelledby="playback-title">
+        <div class="block-copy playback-copy">
+          <div class="section-kicker">PLAYBACK</div>
+          <h2 id="playback-title">Plays through your own system.</h2>
+          <p>
+            <code>speak</code> hands generated audio to the tools your operating
+            system already has. OpenSpeak does not ship another audio stack.
+          </p>
+        </div>
+        <ol class="platform-list">
+          <li><span class="point-index">01</span><div><h3>macOS</h3><p>The built-in <code>afplay</code> command.</p></div></li>
+          <li><span class="point-index">02</span><div><h3>Linux</h3><p><code>mpg123</code> for MP3, <code>aplay</code> for other formats.</p></div></li>
+          <li><span class="point-index">03</span><div><h3>Windows</h3><p>The built-in WinMM MCI API.</p></div></li>
+        </ol>
+      </section>
+
+      <section class="deploy-block">
+        <div class="section-kicker">GET STARTED</div>
+        <h2>Give your terminal a voice.</h2>
+        <a class="marketing-button deploy-button" href="#getting-started"><span>Install OpenSpeak</span><span aria-hidden="true">↓</span></a>
+      </section>
+
+      <footer class="site-footer">
+        <span>OpenSpeak. Small on purpose.</span>
+        <nav aria-label="Footer navigation">
+          <a href="#getting-started">Install</a>
+          <a href="https://openspeak.sh" target="_blank" rel="noreferrer">Documentation</a>
+          <a href="https://github.com/Stephanvs/yapper" target="_blank" rel="noreferrer">GitHub</a>
+        </nav>
+      </footer>
+    </div>
+  </div>
+</main>
