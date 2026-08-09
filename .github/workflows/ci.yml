@@ -2,7 +2,11 @@ name: CI
 
 on:
   push:
+    paths:
+      - 'apps/openspeak/**'
   pull_request:
+    paths:
+      - 'apps/openspeak/**'
 
 permissions:
   contents: read
