@@ -263,13 +263,16 @@ h1 {
 
 .terminal {
   overflow: hidden;
-  margin-top: clamp(2rem, 5vh, 3rem);
   border: 1px solid var(--line);
   border-radius: var(--radius-panel-lg);
   background: var(--code-bg);
   box-shadow: var(--shadow-stack-lg);
   color: var(--code-text);
   text-align: left;
+}
+
+.hero .terminal {
+  margin-top: clamp(2rem, 5vh, 3rem);
 }
 
 .terminal-bar {
@@ -388,82 +391,100 @@ main > section:last-child {
   color: var(--ink);
 }
 
-/* Commands */
+/* Getting started */
 
-.commands-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1.1rem;
+.install {
   margin-top: 2rem;
 }
 
-.command-card {
-  position: relative;
-  padding: 1.75rem;
+.install-toggle {
+  display: inline-flex;
+  gap: 0.4rem;
+  margin-bottom: 0.6rem;
+  padding: 0.3rem;
   border: 1px solid var(--line);
-  border-radius: var(--radius-panel);
+  border-radius: var(--radius-pill);
   background: var(--surface);
-  box-shadow: var(--shadow-stack);
+}
+
+.install-toggle button {
+  appearance: none;
+  padding: 0.45rem 0.9rem;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--muted);
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
   transition:
-    transform 0.2s var(--ease-out),
-    border-color 0.2s var(--ease-out);
+    background 0.2s var(--ease-out),
+    color 0.2s var(--ease-out);
 }
 
-.command-card:hover {
-  border-color: var(--accent-soft);
-  transform: translateY(-2px);
+.install-toggle button:hover {
+  color: var(--ink);
 }
 
-.card-index {
-  position: absolute;
-  top: 1.5rem;
-  right: 1.5rem;
-  color: var(--faint);
+.install-toggle button.active {
+  background: var(--surface-strong);
+  color: var(--ink);
+}
+
+.install .terminal {
+  max-width: 40rem;
+}
+
+.install-command-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.install-command-line code {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.copy-btn {
+  appearance: none;
+  flex-shrink: 0;
+  padding: 0.3rem 0.7rem;
+  border: 1px solid var(--code-line);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--code-muted);
   font-family: var(--mono);
   font-size: 0.7rem;
-  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition:
+    border-color 0.2s var(--ease-out),
+    color 0.2s var(--ease-out);
 }
 
-.command-card h3 {
-  display: flex;
-  align-items: baseline;
-  gap: 0.6rem;
-  font-size: 1.15rem;
-  font-weight: 500;
-  letter-spacing: -0.01em;
+.copy-btn:hover,
+.copy-btn:focus-visible {
+  border-color: var(--accent-soft);
+  color: var(--accent);
 }
 
-.alias,
 .tag {
   display: inline-flex;
   align-items: center;
   padding: 0.2rem 0.55rem;
+  margin-left: 0.55rem;
   border-radius: var(--radius-pill);
+  background: var(--accent-soft);
+  color: var(--accent);
   font-family: var(--mono);
   font-size: 0.62rem;
   font-weight: 600;
   letter-spacing: 0.03em;
   line-height: 1.4;
-}
-
-.alias {
-  background: var(--surface-strong);
-  color: var(--muted);
-}
-
-.tag {
-  margin-left: 0.55rem;
-  background: var(--accent-soft);
-  color: var(--accent);
   text-transform: uppercase;
-}
-
-.command-card p {
-  max-width: 32rem;
-  margin-top: 0.85rem;
-  color: var(--muted);
-  font-size: 0.95rem;
-  line-height: 1.55;
 }
 
 /* Providers */
@@ -653,7 +674,6 @@ footer a:focus-visible {
     margin-top: 1.4rem;
   }
 
-  .commands-grid,
   .provider-grid,
   .options-grid {
     grid-template-columns: 1fr;

@@ -1,10 +1,39 @@
 <script lang="ts">
   import { onMount } from 'svelte'
 
-  const sectionIds = ['commands', 'providers', 'options', 'playback']
+  const sectionIds = ['getting-started', 'providers', 'options', 'playback']
   let activeSection = $state('')
 
+  type InstallOS = 'unix' | 'windows'
+
+  const installCommands: Record<InstallOS, string> = {
+    unix: 'curl -fsSL https://openspeak.sh/install | sh',
+    windows: 'irm https://openspeak.sh/install.ps1 | iex',
+  }
+
+  let installOS = $state<InstallOS>('unix')
+  let copied = $state(false)
+  let copyTimeout: ReturnType<typeof setTimeout> | undefined
+
+  function selectInstallOS(os: InstallOS) {
+    installOS = os
+    copied = false
+  }
+
+  async function copyInstallCommand() {
+    try {
+      await navigator.clipboard.writeText(installCommands[installOS])
+      copied = true
+      clearTimeout(copyTimeout)
+      copyTimeout = setTimeout(() => (copied = false), 1600)
+    } catch {
+      copied = false
+    }
+  }
+
   onMount(() => {
+    installOS = /windows/i.test(navigator.userAgent) ? 'windows' : 'unix'
+
     const sections = sectionIds
       .map((id) => document.getElementById(id))
       .filter((el): el is HTMLElement => el !== null)
@@ -42,7 +71,7 @@
     </a>
 
     <nav class="nav" aria-label="Primary">
-      <a href="#commands" class:active={activeSection === 'commands'} aria-current={activeSection === 'commands' ? 'true' : undefined}>Commands</a>
+      <a href="#getting-started" class:active={activeSection === 'getting-started'} aria-current={activeSection === 'getting-started' ? 'true' : undefined}>Getting Started</a>
       <a href="#providers" class:active={activeSection === 'providers'} aria-current={activeSection === 'providers' ? 'true' : undefined}>Providers</a>
       <a href="#options" class:active={activeSection === 'options'} aria-current={activeSection === 'options' ? 'true' : undefined}>Options</a>
       <a href="#playback" class:active={activeSection === 'playback'} aria-current={activeSection === 'playback' ? 'true' : undefined}>Playback</a>
@@ -100,28 +129,53 @@
       </div>
     </section>
 
-    <section class="commands" id="commands" aria-labelledby="commands-title">
+    <section class="getting-started" id="getting-started" aria-labelledby="getting-started-title">
       <div class="section-head">
-        <p class="eyebrow">Commands</p>
-        <h2 id="commands-title" class="section-heading">Two commands</h2>
+        <p class="eyebrow">Getting Started</p>
+        <h2 id="getting-started-title" class="section-heading">Install in one command</h2>
       </div>
-      <div class="commands-grid">
-        <article class="command-card">
-          <span class="card-index" aria-hidden="true">01</span>
-          <h3><code>speak</code> <span class="alias">alias: say</span></h3>
-          <p>
-            Synthesizes text and plays it immediately through your system's default
-            audio device.
-          </p>
-        </article>
-        <article class="command-card">
-          <span class="card-index" aria-hidden="true">02</span>
-          <h3><code>synthesize</code></h3>
-          <p>
-            Synthesizes text and writes it to a uniquely named audio file in the
-            directory you choose, instead of playing it.
-          </p>
-        </article>
+      <p class="section-lede">
+        Detects your platform and puts <code>openspeak</code> on your PATH — no
+        package manager, no manual download.
+      </p>
+
+      <div class="install">
+        <div class="install-toggle" role="group" aria-label="Choose your platform">
+          <button
+            type="button"
+            class:active={installOS === 'unix'}
+            aria-pressed={installOS === 'unix'}
+            onclick={() => selectInstallOS('unix')}
+          >
+            macOS / Linux
+          </button>
+          <button
+            type="button"
+            class:active={installOS === 'windows'}
+            aria-pressed={installOS === 'windows'}
+            onclick={() => selectInstallOS('windows')}
+          >
+            Windows
+          </button>
+        </div>
+
+        <div class="terminal" aria-label="Install command">
+          <div class="terminal-bar">
+            <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
+            <span class="terminal-title">{installOS === 'windows' ? 'powershell' : 'sh'}</span>
+          </div>
+          <div class="terminal-body">
+            <div class="command">
+              <span class="prompt" aria-hidden="true">{installOS === 'windows' ? '>' : '$'}</span>
+              <span class="install-command-line">
+                <code>{installCommands[installOS]}</code>
+                <button type="button" class="copy-btn" onclick={copyInstallCommand}>
+                  {copied ? 'Copied' : 'Copy'}
+                </button>
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
