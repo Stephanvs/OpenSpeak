@@ -1,0 +1,21 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  cargo-build:
+    name: Cargo build (openspeak)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/openspeak
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@1.85
+      - name: Build CLI
+        run: cargo build --locked
