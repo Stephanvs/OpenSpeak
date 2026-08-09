@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte'
 
-  const sectionIds = ['getting-started', 'providers', 'options', 'playback']
+  const sectionIds = ['showcase', 'getting-started', 'providers', 'options', 'playback']
   let activeSection = $state('')
 
   type InstallOS = 'unix' | 'windows'
@@ -71,6 +71,7 @@
     </a>
 
     <nav class="nav" aria-label="Primary">
+      <a href="#showcase" class:active={activeSection === 'showcase'} aria-current={activeSection === 'showcase' ? 'true' : undefined}>Showcase</a>
       <a href="#getting-started" class:active={activeSection === 'getting-started'} aria-current={activeSection === 'getting-started' ? 'true' : undefined}>Getting Started</a>
       <a href="#providers" class:active={activeSection === 'providers'} aria-current={activeSection === 'providers' ? 'true' : undefined}>Providers</a>
       <a href="#options" class:active={activeSection === 'options'} aria-current={activeSection === 'options' ? 'true' : undefined}>Options</a>
@@ -126,6 +127,76 @@
             <span class="cursor" aria-hidden="true"></span>
           </div>
         </div>
+      </div>
+    </section>
+
+    <section class="showcase" id="showcase" aria-labelledby="showcase-title">
+      <div class="section-head showcase-head">
+        <p class="eyebrow">What will you make speak?</p>
+        <h2 id="showcase-title" class="section-heading">One small command, many ways to be heard</h2>
+      </div>
+      <p class="section-lede">
+        OpenSpeak slots into the tools and content you already use. Here are a few
+        places to start.
+      </p>
+
+      <div class="showcase-grid">
+        <article class="showcase-card showcase-card-featured">
+          <div class="showcase-visual agent-visual" aria-hidden="true">
+            <div class="agent-prompt"><span>&gt;_</span> task complete</div>
+            <div class="agent-orb"><i></i><i></i><i></i><i></i><i></i></div>
+            <div class="agent-wave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          </div>
+          <div class="showcase-copy">
+            <p class="card-number">01</p>
+            <h3>Agent speak</h3>
+            <p>Give your agent a voice. Add a custom skill and let it say the things that matter, right when they happen.</p>
+            <code>openspeak speak "$SUMMARY"</code>
+          </div>
+        </article>
+
+        <article class="showcase-card">
+          <div class="showcase-visual article-visual" aria-hidden="true">
+            <div class="article-sheet">
+              <span></span><span></span><span></span><span></span>
+            </div>
+            <div class="listen-chip"><b>▶</b><em></em><em></em><em></em><em></em><em></em></div>
+          </div>
+          <div class="showcase-copy">
+            <p class="card-number">02</p>
+            <h3>Blog articles</h3>
+            <p>Publish a matching audio clip with every post so readers can keep up on the move.</p>
+            <code>openspeak synthesize "$(cat article.md)"</code>
+          </div>
+        </article>
+
+        <article class="showcase-card">
+          <div class="showcase-visual podcast-visual" aria-hidden="true">
+            <div class="podcast-disc"><span></span><b></b></div>
+            <div class="podcast-track"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          </div>
+          <div class="showcase-copy">
+            <p class="card-number">03</p>
+            <h3>Podcast transcripts</h3>
+            <p>Turn a transcript, notes, or plain text file into a narrated episode or spoken instructions.</p>
+            <code>openspeak synthesize "$(cat transcript.txt)"</code>
+          </div>
+        </article>
+
+        <article class="showcase-card showcase-card-open">
+          <div class="showcase-visual open-visual" aria-hidden="true">
+            <span>?</span>
+            <div class="open-spark open-spark-one"></div>
+            <div class="open-spark open-spark-two"></div>
+            <div class="open-spark open-spark-three"></div>
+          </div>
+          <div class="showcase-copy">
+            <p class="card-number">04</p>
+            <h3>Your use-case here</h3>
+            <p>Voice a notification, narrate a demo, make an accessibility tool, or surprise us with something new.</p>
+            <a class="showcase-link" href="#getting-started">Make it speak <span aria-hidden="true">→</span></a>
+          </div>
+        </article>
       </div>
     </section>
 
