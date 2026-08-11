@@ -82,7 +82,6 @@
 
     <nav class="site-header" aria-label="OpenSpeak navigation">
       <a class="brand" href="/" aria-label="OpenSpeak home">
-        <span class="brand-mark" aria-hidden="true">&gt;_</span>
         <span class="brand-wordmark">OpenSpeak</span>
       </a>
       <a class="marketing-button signup-button" href="https://openspeak.sh" target="_blank" rel="noreferrer">
@@ -92,7 +91,6 @@
 
     <header class="hero-copy">
       <div class="eyebrow-logo" aria-hidden="true">
-        <span>&gt;_</span>
         <b>OpenSpeak</b>
       </div>
       <h1 id="page-title">Your terminal just<br />found its voice.</h1>
