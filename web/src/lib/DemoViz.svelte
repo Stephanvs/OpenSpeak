@@ -4,12 +4,17 @@
   let {
     activeIndex = 0,
     label = '',
+    onready,
+    onfail,
   }: {
     activeIndex?: number
     label?: string
+    onready?: () => void
+    onfail?: () => void
   } = $props()
 
   let host: HTMLDivElement | undefined = $state()
+  let active = $state(false)
 
   let engine: {
     mountScene: (index: number) => void
@@ -27,141 +32,213 @@
     let cleanup: (() => void) | undefined
 
     ;(async () => {
-      const THREE = await import('three')
-      const { readPalette } = await import('./demo-viz/palette')
-      const { sceneFactories } = await import('./demo-viz/scenes')
-      type SceneHandle = import('./demo-viz/scenes').SceneHandle
+      try {
+        const THREE = await import('three')
+        const { readPalette } = await import('./demo-viz/palette')
+        const { sceneFactories } = await import('./demo-viz/scenes')
+        type SceneHandle = import('./demo-viz/scenes').SceneHandle
 
-      if (disposed || !host) return
+        if (disposed || !host) return
 
-      const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)')
-      let reducedMotion = prefersReduced.matches
-
-      const scene = new THREE.Scene()
-      const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100)
-      camera.position.set(0, 0.35, 5.2)
-      camera.lookAt(0, 0, 0)
-
-      const renderer = new THREE.WebGLRenderer({
-        antialias: true,
-        alpha: true,
-        powerPreference: 'high-performance',
-      })
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2))
-      renderer.setClearColor(0x000000, 0)
-      renderer.domElement.style.display = 'block'
-      renderer.domElement.style.width = '100%'
-      renderer.domElement.style.height = '100%'
-      host.appendChild(renderer.domElement)
-
-      let handle: SceneHandle | null = null
-      let currentIndex = -1
-      let raf = 0
-      let running = true
-      let visible = true
-      let last = performance.now()
-      let elapsed = 0
-      let entrance = 0
-
-      function applyFog() {
-        const p = readPalette()
-        scene.fog = new THREE.Fog(p.surface, 6.5, 14)
-      }
-      applyFog()
-
-      function mountScene(index: number) {
-        if (index === currentIndex && handle) return
-        if (handle) {
-          scene.remove(handle.root)
-          handle.dispose()
-          handle = null
+        // Probe WebGL before allocating a renderer
+        const probe = document.createElement('canvas')
+        const gl =
+          probe.getContext('webgl2', { failIfMajorPerformanceCaveat: false }) ||
+          probe.getContext('webgl', { failIfMajorPerformanceCaveat: false }) ||
+          probe.getContext('experimental-webgl')
+        if (!gl) {
+          throw new Error('WebGL unavailable')
         }
-        const factory = sceneFactories[index] ?? sceneFactories[0]
-        handle = factory(readPalette())
-        handle.root.scale.setScalar(0.01)
-        scene.add(handle.root)
-        currentIndex = index
-        elapsed = reducedMotion ? 1.2 : 0
-        entrance = 0
-      }
 
-      engine = { mountScene }
-      mountScene(activeIndex)
+        const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)')
+        let reducedMotion = prefersReduced.matches
 
-      function resize() {
-        if (!host) return
-        const w = host.clientWidth
-        const h = host.clientHeight
-        if (w < 1 || h < 1) return
-        camera.aspect = w / h
-        camera.updateProjectionMatrix()
-        renderer.setSize(w, h, false)
-      }
+        const scene = new THREE.Scene()
+        const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100)
+        camera.position.set(0, 0.35, 5.2)
+        camera.lookAt(0, 0, 0)
 
-      const ro = new ResizeObserver(resize)
-      ro.observe(host)
-      resize()
+        let renderer: InstanceType<typeof THREE.WebGLRenderer>
+        try {
+          renderer = new THREE.WebGLRenderer({
+            antialias: true,
+            alpha: true,
+            powerPreference: 'high-performance',
+          })
+        } catch {
+          throw new Error('WebGLRenderer failed')
+        }
 
-      const io = new IntersectionObserver(
-        ([entry]) => {
-          visible = entry.isIntersecting
-        },
-        { threshold: 0.05 },
-      )
-      io.observe(host)
+        // Confirm the context actually exists after construction
+        const ctx = renderer.getContext()
+        if (!ctx || (typeof (ctx as WebGLRenderingContext).isContextLost === 'function' && (ctx as WebGLRenderingContext).isContextLost())) {
+          renderer.dispose()
+          throw new Error('WebGL context lost or missing')
+        }
 
-      const onMotion = () => {
-        reducedMotion = prefersReduced.matches
-      }
-      prefersReduced.addEventListener('change', onMotion)
+        if (disposed || !host) {
+          renderer.dispose()
+          return
+        }
 
-      const mediaDark = window.matchMedia('(prefers-color-scheme: dark)')
-      const onScheme = () => {
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2))
+        renderer.setClearColor(0x000000, 0)
+        renderer.domElement.style.display = 'block'
+        renderer.domElement.style.width = '100%'
+        renderer.domElement.style.height = '100%'
+        host.appendChild(renderer.domElement)
+
+        let handle: SceneHandle | null = null
+        let currentIndex = -1
+        let raf = 0
+        let running = true
+        let visible = true
+        let last = performance.now()
+        let elapsed = 0
+        let entrance = 0
+
+        function applyFog() {
+          const p = readPalette()
+          scene.fog = new THREE.Fog(p.surface, 6.5, 14)
+        }
         applyFog()
-        const idx = currentIndex
-        currentIndex = -1
-        mountScene(idx)
-      }
-      mediaDark.addEventListener('change', onScheme)
 
-      function frame(now: number) {
-        if (!running) return
-        raf = requestAnimationFrame(frame)
-        const dt = Math.min(0.05, (now - last) / 1000)
-        last = now
-
-        if (!visible || !handle) return
-
-        if (!reducedMotion) {
-          elapsed += dt
-          entrance = Math.min(1, entrance + dt * 3.2)
-          handle.root.scale.setScalar(entrance)
-          handle.update(elapsed, dt)
-        } else {
-          handle.root.scale.setScalar(1)
-          handle.update(1.2, 0)
+        function mountScene(index: number) {
+          if (index === currentIndex && handle) return
+          if (handle) {
+            scene.remove(handle.root)
+            handle.dispose()
+            handle = null
+          }
+          const factory = sceneFactories[index] ?? sceneFactories[0]
+          handle = factory(readPalette())
+          handle.root.scale.setScalar(0.01)
+          scene.add(handle.root)
+          currentIndex = index
+          elapsed = reducedMotion ? 1.2 : 0
+          entrance = 0
         }
 
-        renderer.render(scene, camera)
-      }
-      raf = requestAnimationFrame(frame)
+        engine = { mountScene }
+        mountScene(activeIndex)
 
-      cleanup = () => {
-        running = false
-        cancelAnimationFrame(raf)
-        engine = null
-        ro.disconnect()
-        io.disconnect()
-        prefersReduced.removeEventListener('change', onMotion)
-        mediaDark.removeEventListener('change', onScheme)
-        if (handle) {
-          scene.remove(handle.root)
-          handle.dispose()
+        function resize() {
+          if (!host) return
+          const w = host.clientWidth
+          const h = host.clientHeight
+          if (w < 1 || h < 1) return
+          camera.aspect = w / h
+          camera.updateProjectionMatrix()
+          renderer.setSize(w, h, false)
         }
-        renderer.dispose()
-        if (host && renderer.domElement.parentElement === host) {
-          host.removeChild(renderer.domElement)
+
+        const ro = new ResizeObserver(resize)
+        ro.observe(host)
+        resize()
+
+        function startLoop() {
+          if (!running || raf) return
+          last = performance.now()
+          raf = requestAnimationFrame(frame)
         }
+
+        function stopLoop() {
+          if (!raf) return
+          cancelAnimationFrame(raf)
+          raf = 0
+        }
+
+        const io = new IntersectionObserver(
+          ([entry]) => {
+            visible = entry.isIntersecting
+            if (visible) startLoop()
+            else stopLoop()
+          },
+          { threshold: 0.05 },
+        )
+        io.observe(host)
+
+        const onMotion = () => {
+          reducedMotion = prefersReduced.matches
+        }
+        prefersReduced.addEventListener('change', onMotion)
+
+        const mediaDark = window.matchMedia('(prefers-color-scheme: dark)')
+        const onScheme = () => {
+          applyFog()
+          const idx = currentIndex
+          currentIndex = -1
+          mountScene(idx)
+        }
+        mediaDark.addEventListener('change', onScheme)
+
+        const onContextLost = (event: Event) => {
+          event.preventDefault()
+          stopLoop()
+          running = false
+          engine = null
+          active = false
+          onfail?.()
+        }
+        renderer.domElement.addEventListener('webglcontextlost', onContextLost)
+
+        function frame(now: number) {
+          if (!running || !visible) {
+            raf = 0
+            return
+          }
+          raf = requestAnimationFrame(frame)
+
+          const dt = Math.min(0.05, (now - last) / 1000)
+          last = now
+
+          if (!handle) return
+
+          if (!reducedMotion) {
+            elapsed += dt
+            entrance = Math.min(1, entrance + dt * 3.2)
+            handle.root.scale.setScalar(entrance)
+            handle.update(elapsed, dt)
+          } else {
+            handle.root.scale.setScalar(1)
+            handle.update(1.2, 0)
+          }
+
+          renderer.render(scene, camera)
+        }
+
+        // Only start the loop when currently intersecting
+        const rect = host.getBoundingClientRect()
+        visible =
+          rect.width > 0 &&
+          rect.height > 0 &&
+          rect.bottom > 0 &&
+          rect.top < (window.innerHeight || document.documentElement.clientHeight)
+        if (visible) startLoop()
+
+        active = true
+        onready?.()
+
+        cleanup = () => {
+          running = false
+          stopLoop()
+          engine = null
+          ro.disconnect()
+          io.disconnect()
+          prefersReduced.removeEventListener('change', onMotion)
+          mediaDark.removeEventListener('change', onScheme)
+          renderer.domElement.removeEventListener('webglcontextlost', onContextLost)
+          if (handle) {
+            scene.remove(handle.root)
+            handle.dispose()
+          }
+          renderer.dispose()
+          if (host && renderer.domElement.parentElement === host) {
+            host.removeChild(renderer.domElement)
+          }
+        }
+      } catch {
+        if (!disposed) onfail?.()
       }
     })()
 
@@ -172,8 +249,15 @@
   })
 </script>
 
-<div class="demo-viz" bind:this={host} role="img" aria-label={label || 'OpenSpeak demonstration'}>
-  {#if label}
+<div
+  class="demo-viz"
+  class:demo-viz-active={active}
+  bind:this={host}
+  role="img"
+  aria-label={label || 'OpenSpeak demonstration'}
+  aria-hidden={!active}
+>
+  {#if active && label}
     <div class="demo-viz-caption" aria-hidden="true">
       <span>{label}</span>
     </div>
@@ -184,8 +268,15 @@
   .demo-viz {
     position: absolute;
     inset: 0;
+    z-index: 1;
     overflow: hidden;
     background: transparent;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .demo-viz-active {
+    opacity: 1;
   }
 
   .demo-viz :global(canvas) {
