@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte'
+  import DemoViz from './lib/DemoViz.svelte'
 
   type InstallOS = 'unix' | 'windows'
 
@@ -9,11 +10,11 @@
   }
 
   const demoTabs = [
-    { title: 'Agent speak', detail: 'Hear task updates' },
-    { title: 'Articles', detail: 'Audio for every post' },
-    { title: 'Podcasts', detail: 'Narrate transcripts' },
-    { title: 'Providers', detail: 'Grok + ElevenLabs' },
-    { title: 'CLI control', detail: 'Override every call' },
+    { title: 'Agent speak', detail: 'Hear task updates', caption: 'Neural voice core' },
+    { title: 'Articles', detail: 'Audio for every post', caption: 'Living document' },
+    { title: 'Podcasts', detail: 'Narrate transcripts', caption: 'Broadcast disc' },
+    { title: 'Providers', detail: 'Grok + ElevenLabs', caption: 'Dual engines' },
+    { title: 'CLI control', detail: 'Override every call', caption: 'Command lattice' },
   ]
 
   let activeDemo = $state(0)
@@ -125,7 +126,7 @@
       </div>
 
       <div class="composition-well">
-        <div class="composition" role="img" aria-label={`${demoTabs[activeDemo].title} command-line demonstration`}>
+        <div class="composition" aria-label={`${demoTabs[activeDemo].title} wireframe demonstration`}>
           <div class="demo-window">
             <div class="demo-sidebar" aria-hidden="true">
               <div class="demo-product"><span>&gt;_</span><b>openspeak</b></div>
@@ -144,59 +145,39 @@
               </div>
 
               <div class="demo-stage">
-                {#if activeDemo === 0}
-                  <div class="task-card">
-                    <span class="task-label">AGENT UPDATE</span>
-                    <h2>Release notes are ready.</h2>
-                    <p>The agent finished its task and handed the summary to OpenSpeak.</p>
-                    <div class="waveform" aria-hidden="true">
-                      {#each [14, 24, 38, 54, 31, 62, 46, 26, 42, 58, 34, 18] as height}
-                        <i style={`height:${height}px`}></i>
-                      {/each}
+                <DemoViz
+                  activeIndex={activeDemo}
+                  label={demoTabs[activeDemo].caption}
+                />
+                <div class="demo-stage-hud" aria-hidden="true">
+                  {#if activeDemo === 0}
+                    <div class="command-card">
+                      <span class="prompt">$</span>
+                      <code>openspeak speak "$SUMMARY"</code>
+                      <span class="command-status">played</span>
                     </div>
-                  </div>
-                  <div class="command-card">
-                    <span class="prompt">$</span>
-                    <code>openspeak speak "$SUMMARY"</code>
-                    <span class="command-status">played</span>
-                  </div>
-                {:else if activeDemo === 1}
-                  <div class="document-card">
-                    <span class="document-kicker">ARTICLE.MD</span>
-                    <h2>A more human way to keep up.</h2>
-                    <p>Publish a matching audio clip with every post so readers can listen on the move.</p>
-                    <div class="document-lines" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
-                  </div>
-                  <div class="audio-player"><b>▶</b><span></span><span></span><span></span><span></span><small>02:14</small></div>
-                {:else if activeDemo === 2}
-                  <div class="podcast-card">
-                    <div class="record" aria-hidden="true"><i></i></div>
-                    <div><span class="task-label">NEW EPISODE</span><h2>Ship it.</h2><p>Transcript narrated and saved as an MP3.</p></div>
-                  </div>
-                  <div class="command-card">
-                    <span class="prompt">$</span>
-                    <code>openspeak synthesize "$(cat transcript.txt)"</code>
-                    <span class="command-status">saved</span>
-                  </div>
-                {:else if activeDemo === 3}
-                  <div class="provider-choice">
-                    <article><span>01</span><h2>Grok Voice</h2><p>Fast, expressive speech through xAI.</p><b>DEFAULT</b></article>
-                    <article><span>02</span><h2>ElevenLabs</h2><p>Multilingual voices and models.</p></article>
-                  </div>
-                {:else}
-                  <div class="flags-card">
-                    <span class="task-label">PER-CALL CONTROL</span>
-                    <h2>Override anything.</h2>
-                    <div class="flag-pills">
-                      <code>--provider</code><code>--voice</code><code>--model</code><code>--codec</code><code>--speed</code><code>--language</code>
+                  {:else if activeDemo === 1}
+                    <div class="audio-player"><b>▶</b><span></span><span></span><span></span><span></span><small>02:14</small></div>
+                  {:else if activeDemo === 2}
+                    <div class="command-card">
+                      <span class="prompt">$</span>
+                      <code>openspeak synthesize "$(cat transcript.txt)"</code>
+                      <span class="command-status">saved</span>
                     </div>
-                  </div>
-                  <div class="command-card">
-                    <span class="prompt">$</span>
-                    <code>openspeak speak "Hello" --voice eve --speed 1.1</code>
-                    <span class="command-status">ready</span>
-                  </div>
-                {/if}
+                  {:else if activeDemo === 3}
+                    <div class="provider-hud">
+                      <span>Grok Voice</span>
+                      <i></i>
+                      <span>ElevenLabs</span>
+                    </div>
+                  {:else}
+                    <div class="command-card">
+                      <span class="prompt">$</span>
+                      <code>openspeak speak "Hello" --voice eve --speed 1.1</code>
+                      <span class="command-status">ready</span>
+                    </div>
+                  {/if}
+                </div>
               </div>
             </div>
           </div>
