@@ -394,7 +394,7 @@
         <nav aria-label="Footer navigation">
           <a href="#getting-started">Install</a>
           <a href="https://openspeak.sh" target="_blank" rel="noreferrer">Documentation</a>
-          <a href="https://github.com/Stephanvs/yapper" target="_blank" rel="noreferrer">GitHub</a>
+          <a href="https://github.com/Stephanvs/OpenSpeak" target="_blank" rel="noreferrer">GitHub</a>
         </nav>
       </footer>
     </div>
