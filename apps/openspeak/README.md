@@ -40,6 +40,7 @@ ElevenLabs requires a voice ID either through
 openspeak speak "Good morning."
 openspeak say "The speak command also has a short alias."
 openspeak synthesize "Ship it." --output ./audio
+openspeak devices list
 ```
 
 Use `openspeak <command> --help` for provider, voice, model, codec, speed,
@@ -54,6 +55,11 @@ strategy:
 - Linux uses `mpg123` for MP3 and `aplay` for other formats.
 - Windows uses the built-in WinMM MCI API.
 
+`devices list` shows output devices. On Windows it queries Core Audio endpoints
+for their full friendly names. On macOS it reads the built-in
+audio system report. On Linux it uses PulseAudio/PipeWire sinks when `pactl` is
+available, falling back to ALSA playback devices in `/proc/asound/pcm`.
+
 ## Development
 
 ```bash
@@ -61,4 +67,3 @@ cargo fmt --manifest-path apps/openspeak/Cargo.toml --check
 cargo clippy --manifest-path apps/openspeak/Cargo.toml --all-targets -- -D warnings
 cargo test --manifest-path apps/openspeak/Cargo.toml
 ```
-

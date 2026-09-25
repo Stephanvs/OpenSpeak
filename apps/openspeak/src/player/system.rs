@@ -1,6 +1,8 @@
 use std::io::Write;
 
-use anyhow::{Context, Result, bail};
+#[cfg(not(windows))]
+use anyhow::bail;
+use anyhow::{Context, Result};
 use async_trait::async_trait;
 use tempfile::Builder;
 
@@ -97,6 +99,7 @@ mod windows {
     }
 
     fn send(command: &str) -> Result<()> {
+        const MESSAGE_CAPACITY: u32 = 256;
         let command: Vec<u16> = OsStr::new(command).encode_wide().chain(Some(0)).collect();
         // SAFETY: `command` is a valid null-terminated UTF-16 string. No return
         // buffer or callback window is supplied, as permitted by mciSendStringW.
@@ -105,7 +108,6 @@ mod windows {
             return Ok(());
         }
 
-        const MESSAGE_CAPACITY: u32 = 256;
         let mut message = [0_u16; MESSAGE_CAPACITY as usize];
         // SAFETY: `message` is a writable buffer of the exact length provided.
         let has_message =

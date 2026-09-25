@@ -45,6 +45,7 @@ impl App {
                 commands::synthesize::execute(&self.provider_resolver, &args).await
             }
             Command::Serve => commands::serve::execute(),
+            Command::Devices(args) => commands::devices::execute(args).await,
         }
     }
 }

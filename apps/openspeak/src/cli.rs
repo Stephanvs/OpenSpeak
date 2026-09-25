@@ -22,6 +22,21 @@ pub enum Command {
 
     /// Start a local server (placeholder).
     Serve,
+
+    /// Inspect audio devices on this computer.
+    Devices(DevicesArgs),
+}
+
+#[derive(Debug, Args)]
+pub struct DevicesArgs {
+    #[command(subcommand)]
+    pub command: DevicesCommand,
+}
+
+#[derive(Debug, Subcommand)]
+pub enum DevicesCommand {
+    /// List available output audio devices.
+    List,
 }
 
 #[derive(Clone, Debug, Args)]
@@ -128,6 +143,13 @@ mod tests {
     fn say_is_an_alias_for_speak() {
         let cli = Cli::try_parse_from(["openspeak", "say", "hello"]).unwrap();
         assert!(matches!(cli.command, Command::Speak(_)));
+    }
+
+    #[test]
+    fn devices_list_is_a_nested_command() {
+        let cli = Cli::try_parse_from(["openspeak", "devices", "list"]).unwrap();
+        assert!(matches!(cli.command, Command::Devices(_)));
+        assert!(Cli::try_parse_from(["openspeak", "devices"]).is_err());
     }
 
     #[test]

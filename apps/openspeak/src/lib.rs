@@ -9,11 +9,19 @@ use std::process::ExitCode;
 
 use clap::Parser;
 
-use crate::{app::App, cli::Cli, config::Config};
+use crate::{
+    app::App,
+    cli::{Cli, Command},
+    config::Config,
+};
 
 /// Parse the command line, compose the application, and execute one command.
 pub async fn run() -> ExitCode {
     let cli = Cli::parse();
+
+    if let Command::Devices(args) = cli.command {
+        return exit_code(commands::devices::execute(args).await);
+    }
 
     let config = match Config::from_env() {
         Ok(config) => config,
@@ -32,6 +40,10 @@ pub async fn run() -> ExitCode {
         },
     };
 
+    exit_code(result)
+}
+
+fn exit_code(result: anyhow::Result<()>) -> ExitCode {
     match result {
         Ok(()) => ExitCode::SUCCESS,
         Err(error) => {
