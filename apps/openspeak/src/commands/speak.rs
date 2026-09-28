@@ -1,6 +1,10 @@
-use anyhow::{Result, bail};
+use anyhow::{Context, Result, bail};
 
-use crate::{cli::SpeechArgs, player::Player, providers::TextToSpeechProviderResolver};
+use crate::{
+    cli::{CliSpeechCodec, SpeakArgs},
+    player::{Player, devices},
+    providers::TextToSpeechProviderResolver,
+};
 
 /// Synthesize and immediately play one speech request.
 ///
@@ -11,21 +15,55 @@ use crate::{cli::SpeechArgs, player::Player, providers::TextToSpeechProviderReso
 pub async fn execute(
     provider_resolver: &TextToSpeechProviderResolver,
     player: &dyn Player,
-    args: &SpeechArgs,
+    args: &SpeakArgs,
 ) -> Result<()> {
-    if args.text.trim().is_empty() {
+    if args.speech.text.trim().is_empty() {
         bail!("No text supplied for speak.");
     }
+    if matches!(
+        args.speech.codec,
+        Some(CliSpeechCodec::Pcm | CliSpeechCodec::Mulaw | CliSpeechCodec::Alaw)
+    ) {
+        bail!("Immediate playback supports MP3 and WAV. Use `synthesize` for raw audio codecs.");
+    }
 
-    let provider = provider_resolver.resolve(args.provider.as_deref())?;
-    let result = provider.speak(&args.request()).await?;
-    player.play(&result).await?;
+    let selected_id = if let Some(index) = args.device {
+        let listed = tokio::task::spawn_blocking(devices::list)
+            .await
+            .context("The audio device discovery task failed.")??;
+        Some(
+            listed
+                .get(index)
+                .with_context(|| {
+                    format!("Output device {index} is unavailable. Run `devices list` again.")
+                })?
+                .id
+                .clone(),
+        )
+    } else {
+        None
+    };
+
+    let provider = provider_resolver.resolve(args.speech.provider.as_deref())?;
+    let result = provider.speak(&args.speech.request()).await?;
+    if !matches!(
+        result.file_extension.to_ascii_lowercase().as_str(),
+        ".mp3" | ".wav"
+    ) {
+        bail!(
+            "Immediate playback supports MP3 and WAV; the provider returned {}.",
+            result.content_type
+        );
+    }
+    player.play(&result, selected_id.as_deref()).await?;
 
     println!(
-        "[{}] played {} bytes ({}) on the default audio device",
+        "[{}] played {} bytes ({}) on audio device {}",
         provider.name(),
         result.audio_bytes.len(),
-        result.content_type
+        result.content_type,
+        args.device
+            .map_or_else(|| "default".to_owned(), |index| index.to_string())
     );
     Ok(())
 }
@@ -42,7 +80,7 @@ mod tests {
 
     use super::execute;
     use crate::{
-        cli::SpeechArgs,
+        cli::{SpeakArgs, SpeechArgs},
         player::Player,
         providers::{
             SpeechResult, TextToSpeechProvider, TextToSpeechProviderResolver, TtsSpeechRequest,
@@ -70,8 +108,9 @@ mod tests {
 
     #[async_trait]
     impl Player for RecordingPlayer {
-        async fn play(&self, result: &SpeechResult) -> Result<()> {
+        async fn play(&self, result: &SpeechResult, device_id: Option<&str>) -> Result<()> {
             assert_eq!(result.audio_bytes, [1, 2, 3]);
+            assert_eq!(device_id, None);
             self.0.store(true, Ordering::Relaxed);
             Ok(())
         }
@@ -84,16 +123,19 @@ mod tests {
             "test",
         );
         let player = RecordingPlayer(AtomicBool::new(false));
-        let args = SpeechArgs {
-            text: "hello".to_owned(),
-            provider: None,
-            voice: None,
-            model: None,
-            codec: None,
-            speed: None,
-            sample_rate: None,
-            bit_rate: None,
-            language: None,
+        let args = SpeakArgs {
+            speech: SpeechArgs {
+                text: "hello".to_owned(),
+                provider: None,
+                voice: None,
+                model: None,
+                codec: None,
+                speed: None,
+                sample_rate: None,
+                bit_rate: None,
+                language: None,
+            },
+            device: None,
         };
 
         execute(&resolver, &player, &args).await.unwrap();

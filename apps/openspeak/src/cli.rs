@@ -15,7 +15,7 @@ pub struct Cli {
 pub enum Command {
     /// Convert text to speech and play immediately.
     #[command(alias = "say")]
-    Speak(SpeechArgs),
+    Speak(SpeakArgs),
 
     /// Generate an audio file from text.
     Synthesize(SynthesizeArgs),
@@ -37,6 +37,16 @@ pub struct DevicesArgs {
 pub enum DevicesCommand {
     /// List available output audio devices.
     List,
+}
+
+#[derive(Clone, Debug, Args)]
+pub struct SpeakArgs {
+    #[command(flatten)]
+    pub speech: SpeechArgs,
+
+    /// Output device number from `devices list`.
+    #[arg(long)]
+    pub device: Option<usize>,
 }
 
 #[derive(Clone, Debug, Args)]
@@ -150,6 +160,18 @@ mod tests {
         let cli = Cli::try_parse_from(["openspeak", "devices", "list"]).unwrap();
         assert!(matches!(cli.command, Command::Devices(_)));
         assert!(Cli::try_parse_from(["openspeak", "devices"]).is_err());
+    }
+
+    #[test]
+    fn device_option_applies_only_to_speak() {
+        let cli = Cli::try_parse_from(["openspeak", "speak", "hello", "--device", "2"]).unwrap();
+        let Command::Speak(args) = cli.command else {
+            panic!("expected speak command");
+        };
+        assert_eq!(args.device, Some(2));
+        assert!(
+            Cli::try_parse_from(["openspeak", "synthesize", "hello", "--device", "2"]).is_err()
+        );
     }
 
     #[test]

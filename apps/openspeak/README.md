@@ -41,6 +41,7 @@ openspeak speak "Good morning."
 openspeak say "The speak command also has a short alias."
 openspeak synthesize "Ship it." --output ./audio
 openspeak devices list
+openspeak speak "Play this on my headset." --device 2
 ```
 
 Use `openspeak <command> --help` for provider, voice, model, codec, speed,
@@ -48,17 +49,21 @@ sample-rate, bit-rate, and language overrides.
 
 ## Audio playback
 
-Playback intentionally follows the previous implementation's system-player
-strategy:
+`devices list` shows available output devices with short numbers, such as
+`0: Speakers (default)`. Pass a number to `speak --device` to play on that
+device. If `--device` is omitted, speech uses the system default.
 
-- macOS uses the built-in `afplay` command.
-- Linux uses `mpg123` for MP3 and `aplay` for other formats.
-- Windows uses the built-in WinMM MCI API.
+The list is sorted by CPAL's stable device identifiers, so numbers stay the
+same between runs while the available device set stays the same. Adding or
+removing a device can change the numbers; run `devices list` again after a
+hardware or audio service change. Friendly names can repeat, but each number
+selects its corresponding device. No long device identifier needs to be copied.
 
-`devices list` shows output devices. On Windows it queries Core Audio endpoints
-for their full friendly names. On macOS it reads the built-in
-audio system report. On Linux it uses PulseAudio/PipeWire sinks when `pactl` is
-available, falling back to ALSA playback devices in `/proc/asound/pcm`.
+CPAL supplies both enumeration and playback device handles through WASAPI on
+Windows, Core Audio on macOS, and ALSA on Linux. Rodio decodes and plays the
+generated audio. Linux builds need ALSA development headers (`libasound2-dev`
+on Debian/Ubuntu). Immediate playback supports MP3 and WAV output. Use
+`synthesize` to save other codecs.
 
 ## Development
 
