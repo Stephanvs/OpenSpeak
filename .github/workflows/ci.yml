@@ -23,7 +23,7 @@ jobs:
         working-directory: apps/openspeak
     steps:
       - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@1.87
+      - uses: dtolnay/rust-toolchain@1.88
       - name: Install ALSA headers
         if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install -y libasound2-dev
