@@ -2,7 +2,7 @@
 name = "openspeak"
 version = "0.1.0"
 edition = "2024"
-rust-version = "1.85"
+rust-version = "1.87"
 description = "A small command-line text-to-speech client"
 license = "MIT"
 publish = false
@@ -12,17 +12,15 @@ anyhow = "1.0.104"
 async-trait = "0.1.92"
 chrono = { version = "0.4.45", default-features = false, features = ["clock"] }
 clap = { version = "4.6.6", features = ["derive"] }
+cpal = "0.17.3"
 reqwest = { version = "0.13.4", default-features = false, features = ["json", "rustls"] }
+rodio = { version = "0.22.2", default-features = false, features = ["playback", "symphonia-mp3", "symphonia-wav", "symphonia-pcm"] }
 serde = { version = "1.0.229", features = ["derive"] }
-tempfile = "3.27.0"
 tokio = { version = "1.53.1", features = ["fs", "macros", "process", "rt-multi-thread", "signal"] }
 uuid = { version = "1.24.0", features = ["v4"] }
 
-[target.'cfg(windows)'.dependencies]
-windows = { version = "0.62.2", features = ["Win32_Devices_FunctionDiscovery", "Win32_Media_Audio", "Win32_System_Com", "Win32_System_Com_StructuredStorage", "Win32_System_Variant", "Win32_UI_Shell_PropertiesSystem"] }
-windows-sys = { version = "0.61.2", features = ["Win32_Foundation", "Win32_Media_Multimedia"] }
-
 [dev-dependencies]
+tempfile = "3.27.0"
 serde_json = "1.0"
 wiremock = "0.6.5"
 

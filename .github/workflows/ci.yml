@@ -13,13 +13,21 @@ permissions:
 
 jobs:
   cargo-build:
-    name: Cargo build (openspeak)
-    runs-on: ubuntu-latest
+    name: Cargo build (openspeak, ${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
     defaults:
       run:
         working-directory: apps/openspeak
     steps:
       - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@1.85
+      - uses: dtolnay/rust-toolchain@1.87
+      - name: Install ALSA headers
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libasound2-dev
       - name: Build CLI
         run: cargo build --locked
+      - name: Test CLI
+        run: cargo test --locked

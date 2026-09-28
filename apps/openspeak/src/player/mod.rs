@@ -1,3 +1,4 @@
+pub mod devices;
 mod system;
 
 use anyhow::Result;
@@ -9,5 +10,5 @@ pub use system::SystemPlayer;
 
 #[async_trait]
 pub trait Player: Send + Sync {
-    async fn play(&self, result: &SpeechResult) -> Result<()>;
+    async fn play(&self, result: &SpeechResult, device_id: Option<&str>) -> Result<()>;
 }
