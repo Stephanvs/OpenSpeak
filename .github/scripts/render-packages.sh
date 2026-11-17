@@ -43,8 +43,6 @@ class Openspeak < Formula
   end
 
   on_linux do
-    depends_on "alsa-lib"
-
     on_arm do
       url "$base/openspeak-aarch64-unknown-linux-gnu.tar.gz"
       sha256 "$linux_arm"
@@ -57,6 +55,15 @@ class Openspeak < Formula
 
   def install
     bin.install "openspeak"
+  end
+
+  def caveats
+    on_linux do
+      <<~CAVEATS
+        openspeak loads your distribution's ALSA library at runtime.
+        On Debian and Ubuntu: sudo apt install libasound2t64 (libasound2 before 24.04)
+      CAVEATS
+    end
   end
 
   test do

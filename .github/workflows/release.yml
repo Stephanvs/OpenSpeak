@@ -203,8 +203,17 @@ jobs:
 
   verify-homebrew:
     needs: [plan, homebrew]
-    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, ubuntu-24.04]
+    runs-on: ${{ matrix.os }}
     steps:
+      - name: Set up Homebrew and the system ALSA library
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update && sudo apt-get install -y libasound2t64
+          echo "/home/linuxbrew/.linuxbrew/bin" >> "$GITHUB_PATH"
       - name: Install from the tap
         run: |
           brew install stephanvs/tap/openspeak
