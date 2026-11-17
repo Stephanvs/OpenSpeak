@@ -3,7 +3,8 @@
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
 
-$url = 'https://github.com/Stephanvs/OpenSpeak/releases/latest/download/openspeak-x86_64-pc-windows-msvc.zip'
+$version = (Invoke-RestMethod -Uri 'https://api.github.com/repos/Stephanvs/OpenSpeak/releases/latest' -UseBasicParsing).tag_name.TrimStart('v')
+$url = "https://github.com/Stephanvs/OpenSpeak/releases/download/v$version/openspeak-$version-x86_64-pc-windows-msvc.zip"
 $dir = if ($env:OPENSPEAK_INSTALL_DIR) { $env:OPENSPEAK_INSTALL_DIR } else { Join-Path $env:LOCALAPPDATA 'openspeak\bin' }
 $zip = Join-Path ([IO.Path]::GetTempPath()) "openspeak-$([guid]::NewGuid()).zip"
 

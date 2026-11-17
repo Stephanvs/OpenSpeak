@@ -102,9 +102,9 @@ jobs:
           mkdir -p "$GITHUB_WORKSPACE/dist"
           cd "target/$TARGET/release"
           if [[ "${{ matrix.archive }}" == zip ]]; then
-            7z a -tzip "$GITHUB_WORKSPACE/dist/openspeak-$TARGET.zip" openspeak.exe
+            7z a -tzip "$GITHUB_WORKSPACE/dist/openspeak-$VERSION-$TARGET.zip" openspeak.exe
           else
-            tar -czf "$GITHUB_WORKSPACE/dist/openspeak-$TARGET.tar.gz" openspeak
+            tar -czf "$GITHUB_WORKSPACE/dist/openspeak-$VERSION-$TARGET.tar.gz" openspeak
           fi
       - uses: actions/upload-artifact@v7.0.2
         with:

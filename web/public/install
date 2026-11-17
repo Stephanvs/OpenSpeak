@@ -15,7 +15,9 @@ case "$(uname -m)" in
   *) echo "openspeak: unsupported architecture $(uname -m)" >&2; exit 1 ;;
 esac
 
-url="https://github.com/Stephanvs/OpenSpeak/releases/latest/download/openspeak-$arch-$os.tar.gz"
+latest="$(curl -fsSLI -o /dev/null -w '%{url_effective}' https://github.com/Stephanvs/OpenSpeak/releases/latest)"
+version="${latest##*/v}"
+url="https://github.com/Stephanvs/OpenSpeak/releases/download/v$version/openspeak-$version-$arch-$os.tar.gz"
 dir="${OPENSPEAK_INSTALL_DIR:-$HOME/.local/bin}"
 tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT

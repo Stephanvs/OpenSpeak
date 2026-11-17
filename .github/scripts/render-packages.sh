@@ -11,7 +11,7 @@ repo="https://github.com/Stephanvs/OpenSpeak"
 base="$repo/releases/download/v$version"
 
 sha() {
-  local file="$dist/openspeak-$1"
+  local file="$dist/openspeak-$version-$1"
   [[ -f "$file" ]] || { echo "missing release asset $file" >&2; exit 1; }
   sha256sum "$file" | cut -d' ' -f1
 }
@@ -28,27 +28,26 @@ cat > "$out/openspeak.rb" <<EOF
 class Openspeak < Formula
   desc "Small command-line text-to-speech client"
   homepage "https://openspeak.sh"
-  version "$version"
   license "MIT"
 
   on_macos do
     on_arm do
-      url "$base/openspeak-aarch64-apple-darwin.tar.gz"
+      url "$base/openspeak-$version-aarch64-apple-darwin.tar.gz"
       sha256 "$mac_arm"
     end
     on_intel do
-      url "$base/openspeak-x86_64-apple-darwin.tar.gz"
+      url "$base/openspeak-$version-x86_64-apple-darwin.tar.gz"
       sha256 "$mac_x64"
     end
   end
 
   on_linux do
     on_arm do
-      url "$base/openspeak-aarch64-unknown-linux-gnu.tar.gz"
+      url "$base/openspeak-$version-aarch64-unknown-linux-gnu.tar.gz"
       sha256 "$linux_arm"
     end
     on_intel do
-      url "$base/openspeak-x86_64-unknown-linux-gnu.tar.gz"
+      url "$base/openspeak-$version-x86_64-unknown-linux-gnu.tar.gz"
       sha256 "$linux_x64"
     end
   end
@@ -74,7 +73,7 @@ EOF
 
 jq -n \
   --arg version "$version" \
-  --arg url "$base/openspeak-x86_64-pc-windows-msvc.zip" \
+  --arg url "$base/openspeak-$version-x86_64-pc-windows-msvc.zip" \
   --arg hash "$win_x64" \
   --arg repo "$repo" \
   '{
@@ -87,7 +86,7 @@ jq -n \
     checkver: { github: $repo },
     autoupdate: {
       architecture: {
-        "64bit": { url: ($repo + "/releases/download/v$version/openspeak-x86_64-pc-windows-msvc.zip") }
+        "64bit": { url: ($repo + "/releases/download/v$version/openspeak-$version-x86_64-pc-windows-msvc.zip") }
       }
     }
   }' > "$out/openspeak.json"
