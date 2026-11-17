@@ -1,0 +1,33 @@
+#!/bin/sh
+# Installs the latest openspeak release.
+# Usage: curl -fsSL https://openspeak.sh/install | sh
+set -eu
+
+case "$(uname -s)" in
+  Darwin) os=apple-darwin ;;
+  Linux) os=unknown-linux-gnu ;;
+  *) echo "openspeak: unsupported operating system $(uname -s)" >&2; exit 1 ;;
+esac
+
+case "$(uname -m)" in
+  x86_64 | amd64) arch=x86_64 ;;
+  arm64 | aarch64) arch=aarch64 ;;
+  *) echo "openspeak: unsupported architecture $(uname -m)" >&2; exit 1 ;;
+esac
+
+url="https://github.com/Stephanvs/OpenSpeak/releases/latest/download/openspeak-$arch-$os.tar.gz"
+dir="${OPENSPEAK_INSTALL_DIR:-$HOME/.local/bin}"
+tmp="$(mktemp -d)"
+trap 'rm -rf "$tmp"' EXIT
+
+echo "Downloading $url"
+curl -fsSL "$url" | tar -xz -C "$tmp"
+mkdir -p "$dir"
+mv "$tmp/openspeak" "$dir/openspeak"
+chmod 755 "$dir/openspeak"
+
+echo "Installed $("$dir/openspeak" --version) to $dir/openspeak"
+case ":$PATH:" in
+  *":$dir:"*) ;;
+  *) echo "Add $dir to your PATH to run openspeak." ;;
+esac

@@ -5,7 +5,7 @@ use clap::{Args, Parser, Subcommand, ValueEnum};
 use crate::providers::{SpeechCodec, SpeechOutputSettings, TtsSpeechRequest};
 
 #[derive(Debug, Parser)]
-#[command(name = "openspeak", about = "openspeak - text-to-speech")]
+#[command(name = "openspeak", version, about = "openspeak - text-to-speech")]
 pub struct Cli {
     #[command(subcommand)]
     pub command: Command,
